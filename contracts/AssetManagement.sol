@@ -12,13 +12,19 @@ contract AssetManagement {
     }
 
     // State variables
-    mapping(uint => Article) public articles;
     uint articleCounter;
+    uint articleCounterSell;
     address seller;
     address buyer;
     string name;
     string description;
     uint256 price;
+
+    //Marktplatz
+    mapping(uint => Article) public articles;
+
+    //haben
+    mapping(uint => Article) public ownArticles;
 
     // Events
     event LogSellArticle (
@@ -34,13 +40,14 @@ contract AssetManagement {
         string _name,
         uint256 _price);
 
-    // sell an article
-    function sellArticle(string memory _name, string memory _description, uint256 _price) public {
+
+    //create new Asset for own vault
+    function createAsset (string memory _name, string memory _description, uint256 _price) public {
         // a new article
         articleCounter++;
 
         // store this article
-        articles[articleCounter] = Article(
+        ownArticles[articleCounter] = Article(
             articleCounter,
             msg.sender,
             address(0),
@@ -48,19 +55,61 @@ contract AssetManagement {
             _description,
             _price
         );
+    }
 
+    // fetch and returns all article IDs available for sale
+    function getOwnedAssets() public view returns (uint[]memory) {
+        // we check whether there is at least one article
+        if(articleCounter == 0) {
+            return new uint[](0);
+        }
+
+        // prepare output arrays
+        uint[] memory articleIds = new uint[](articleCounter);
+        uint numberOfArticlesForSale = 0;
+        // iterate over articles
+        for (uint i = 1; i <= articleCounter; i++) {
+                articleIds[numberOfArticlesForSale] = ownArticles[i].id;
+                numberOfArticlesForSale++;
+            }
+      
+        
+        // copy the articleIds array into the smaller forSale array
+        uint[] memory ownedAssets = new uint[](numberOfArticlesForSale);
+        for (uint j = 0; j < numberOfArticlesForSale; j++) {
+            ownedAssets[j] = articleIds[j];
+        }
+        return ownedAssets;
+
+    }
+
+
+    // sell an article
+    function sellArticle(string memory _name, string memory _description, uint256 _price) public {
+        // a new article
+        articleCounterSell++;
+
+        // store this article
+        articles[articleCounterSell] = Article(
+            articleCounterSell,
+            msg.sender,
+            address(0),
+            _name,
+            _description,
+            _price
+        );
         // trigger the event
-        emit LogSellArticle(articleCounter, msg.sender, _name, _price);
+        emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
 
     // buy an article
     function buyArticle(uint _id) public payable {
 
         // we check whether there is at least one article
-        require(articleCounter > 0, "There should be at least one article");
+        require(articleCounterSell > 0, "There should be at least one article");
 
         // we check whether the article exists
-        require(_id > 0 && _id <= articleCounter, "Article with this id does not exist");
+        require(_id > 0 && _id <= articleCounterSell, "Article with this id does not exist");
 
         // we retrieve the article
         Article storage article = articles[_id];
@@ -88,20 +137,25 @@ contract AssetManagement {
     function getNumberOfArticles() public view returns (uint) {
         return articleCounter;
     }
+       // fetch the number of articles in the contract
+    function getNumberOfSellingArticles() public view returns (uint) {
+        return articleCounterSell;
+    }
+
 
     // fetch and returns all article IDs available for sale
     function getArticlesForSale() public view returns (uint[]memory) {
         // we check whether there is at least one article
-        if(articleCounter == 0) {
+        if(articleCounterSell == 0) {
             return new uint[](0);
         }
 
         // prepare output arrays
-        uint[] memory articleIds = new uint[](articleCounter);
+        uint[] memory articleIds = new uint[](articleCounterSell);
 
         uint numberOfArticlesForSale = 0;
         // iterate over articles
-        for (uint i = 1; i <= articleCounter; i++) {
+        for (uint i = 1; i <= articleCounterSell; i++) {
             // keep only the ID for the article not already sold
             if (articles[i].buyer == address(0)) {
                 articleIds[numberOfArticlesForSale] = articles[i].id;

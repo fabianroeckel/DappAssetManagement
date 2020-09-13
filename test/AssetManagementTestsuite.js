@@ -21,7 +21,7 @@ contract('AssetManagement', function (accounts) {
 
     // Test case: check initial values
     it("should be initialized with empty values", async () => {
-        const numberOfArticles = await assetManagementInstance.getNumberOfArticles();
+        const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
         assert.equal(numberOfArticles, 0, "number of articles must be zero");
         const articlesForSale = await assetManagementInstance.getArticlesForSale();
         assert.equal(articlesForSale.length, 0, "articles for sale should be empty");
@@ -45,7 +45,7 @@ contract('AssetManagement', function (accounts) {
         assert.equal(receipt.logs[0].args._name, articleName1, "article name must be " + articleName1);
         assert.equal(receipt.logs[0].args._price.toString(), web3.utils.toWei(articlePrice1, "ether").toString(), "article price must be " + web3.utils.toWei(articlePrice1, "ether"));
 
-        const numberOfArticles = await assetManagementInstance.getNumberOfArticles();
+        const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
         assert.equal(numberOfArticles, 1, "number of articles must be one");
 
         const articlesForSale = await assetManagementInstance.getArticlesForSale();
@@ -78,7 +78,7 @@ contract('AssetManagement', function (accounts) {
         assert.equal(receipt.logs[0].args._name, articleName2, "event article name must be " + articleName2);
         assert.equal(receipt.logs[0].args._price.toString(), web3.utils.toWei(articlePrice2, "ether").toString(), "event article price must be " + web3.utils.toWei(articlePrice2, "ether"));
 
-        const numberOfArticles = await assetManagementInstance.getNumberOfArticles();
+        const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
         assert.equal(numberOfArticles, 2, "number of articles must be two");
 
         const articlesForSale = await assetManagementInstance.getArticlesForSale();

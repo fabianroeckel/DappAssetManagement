@@ -80,10 +80,10 @@ App = {
     },
 
     sellArticle: async () => {
-        const articlePriceValue = parseFloat($('#article_price').val());
+        const articlePriceValue = parseFloat($('#article_price_sell').val());
         const articlePrice = isNaN(articlePriceValue) ? "0" : articlePriceValue.toString();
-        const _name = $('#article_name').val();
-        const _description = $('#article_description').val();
+        const _name = $('#article_name_sell').val();
+        const _description = $('#article_description_sell').val();
         const _price = window.web3.utils.toWei(articlePrice, "ether");
         if(_name.trim() == "" || _price === "0") {
             return false;
@@ -103,7 +103,34 @@ App = {
             console.error(error);
         }
     },
-
+     
+    createAsset: async () => {
+        console.log("creating")
+        const articlePriceValueCreate = parseFloat($('#article_price_create').val());
+        const articlePriceCreate = isNaN(articlePriceValueCreate) ? "0" : articlePriceValueCreate.toString();
+        const _nameCreate = $('#article_name_create').val();
+        const _descriptionCreate = $('#article_description_create').val();
+        const _priceCreate = window.web3.utils.toWei(articlePriceCreate, "ether");
+        if(_nameCreate.trim() == "" || _priceCreate === "0") {
+            return false;
+        }
+        try {
+            const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+            const transactionReceipt = await assetManagementInstance.createAsset(
+                _nameCreate,
+                _descriptionCreate,
+                _priceCreate,
+                {from: App.account, gas: 5000000}
+            ).on("transactionHash", hash => {
+                console.log("transaction hash", hash);
+            });
+            console.log("transaction receipt", transactionReceipt);
+            App.reloadArticles();
+        } catch(error) {
+            console.error(error);
+        }
+    },
+    
     buyArticle: async () => {
         event.preventDefault();
 
@@ -152,6 +179,20 @@ App = {
             console.error(error);
             App.loading = false;
         }
+
+        try {
+            const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+            const articleIds2 = await assetManagementInstance.getOwnedAssets();
+            $('#articlesRow2').empty();
+            for(let i = 0; i < articleIds2.length; i++) {
+                const article = await assetManagementInstance.ownArticles(articleIds2[i]);
+                App.displayOwnedArticle(article[0], article[1], article[3], article[4], article[5]);
+            }
+            App.loading = false;
+        } catch(error) {
+            console.error(error);
+            App.loading = false;
+        }
     },
 
     displayArticle: (id, seller, name, description, price) => {
@@ -160,24 +201,50 @@ App = {
         const etherPrice = web3.utils.fromWei(price, "ether");
 
         // Retrieve and fill the article template
-        var articleTemplate = $('#articleTemplate');
-        articleTemplate.find('.panel-title').text(name);
-        articleTemplate.find('.article-description').text(description);
-        articleTemplate.find('.article-price').text(etherPrice + " ETH");
-        articleTemplate.find('.btn-buy').attr('data-id', id);
-        articleTemplate.find('.btn-buy').attr('data-value', etherPrice);
+        var articleTemplateSell = $('#articleTemplateSell');
+        articleTemplateSell.find('.panel-title').text(name);
+        articleTemplateSell.find('.article-description-sell').text(description);
+        articleTemplateSell.find('.article-price-sell').text(etherPrice + " ETH");
+        articleTemplateSell.find('.btn-buy').attr('data-id', id);
+        articleTemplateSell.find('.btn-buy').attr('data-value', etherPrice);
 
         // seller?
         if (seller == App.account) {
-            articleTemplate.find('.article-seller').text("You");
-            articleTemplate.find('.btn-buy').hide();
+            articleTemplateSell.find('.article-seller-sell').text("You");
+            articleTemplateSell.find('.btn-buy').hide();
         } else {
-            articleTemplate.find('.article-seller').text(seller);
-            articleTemplate.find('.btn-buy').show();
+            articleTemplateSell.find('.article-seller-sell').text(seller);
+            articleTemplateSell.find('.btn-buy').show();
         }
 
         // add this new article
-        articlesRow.append(articleTemplate.html());
+        articlesRow.append(articleTemplateSell.html());
+    },
+
+    displayOwnedArticle: (id, seller, name, description, price) => {
+        // Retrieve the article placeholder
+        const articlesRow2 = $('#articlesRow2');
+        const etherPrice = web3.utils.fromWei(price, "ether");
+
+        // Retrieve and fill the article template
+        var articleTemplateCreate = $('#articleTemplateCreate');
+        articleTemplateCreate.find('.panel-title').text(name);
+        articleTemplateCreate.find('.article-description-create').text(description);
+        articleTemplateCreate.find('.article-price-create').text(etherPrice + " ETH");
+        articleTemplateCreate.find('.btn-buy').attr('data-id', id);
+        articleTemplateCreate.find('.btn-buy').attr('data-value', etherPrice);
+
+        // seller?
+        if (seller == App.account) {
+            articleTemplateCreate.find('.article-seller-create').text("You");
+            articleTemplateCreate.find('.btn-buy').hide();
+        } else {
+            articleTemplateCreate.find('.article-seller-create').text(seller);
+            articleTemplateCreate.find('.btn-buy').show();
+        }
+
+        // add this new article
+        articlesRow2.append(articleTemplateCreate.html());
     },
 
     
