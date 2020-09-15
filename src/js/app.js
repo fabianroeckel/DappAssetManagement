@@ -238,13 +238,10 @@ App = {
         if (seller == App.account) {
             articleTemplateCreate.find('.article-seller-create').text("You");
             articleTemplateCreate.find('.btn-buy').hide();
-        } else {
-            articleTemplateCreate.find('.article-seller-create').text(seller);
-            articleTemplateCreate.find('.btn-buy').show();
+            // add this new article
+            articlesRow2.append(articleTemplateCreate.html());
         }
-
-        // add this new article
-        articlesRow2.append(articleTemplateCreate.html());
+    
     },
 
     

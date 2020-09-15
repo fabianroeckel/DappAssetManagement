@@ -1,6 +1,7 @@
 pragma solidity >0.4.99 <0.8.0;
 
 contract AssetManagement {
+
     // Custom types
     struct Article {
         uint id;
@@ -9,6 +10,7 @@ contract AssetManagement {
         string name;
         string description;
         uint256 price;
+        //transaktion history
     }
 
     // State variables
@@ -23,7 +25,7 @@ contract AssetManagement {
     //Marktplatz
     mapping(uint => Article) public articles;
 
-    //haben
+    //All articles !not! on the market
     mapping(uint => Article) public ownArticles;
 
     // Events
@@ -66,17 +68,17 @@ contract AssetManagement {
 
         // prepare output arrays
         uint[] memory articleIds = new uint[](articleCounter);
-        uint numberOfArticlesForSale = 0;
+        uint numberOfArticlesOwned = 0;
         // iterate over articles
         for (uint i = 1; i <= articleCounter; i++) {
-                articleIds[numberOfArticlesForSale] = ownArticles[i].id;
-                numberOfArticlesForSale++;
+            articleIds[numberOfArticlesOwned] = ownArticles[i].id;
+            numberOfArticlesOwned++;  
             }
       
         
         // copy the articleIds array into the smaller forSale array
-        uint[] memory ownedAssets = new uint[](numberOfArticlesForSale);
-        for (uint j = 0; j < numberOfArticlesForSale; j++) {
+        uint[] memory ownedAssets = new uint[](numberOfArticlesOwned);
+        for (uint j = 0; j < numberOfArticlesOwned; j++) {
             ownedAssets[j] = articleIds[j];
         }
         return ownedAssets;
@@ -101,6 +103,25 @@ contract AssetManagement {
         // trigger the event
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
+    
+    function sentToMarket(uint _id) public {
+    
+    //we check wether there is at least one owned article
+    require (articleCounter > 0, "There should be at least one owned article");
+
+    //we check whether the article exists
+    require (_id > 0 && _id <= articleCounter, "Article with this id does not exits");
+
+    // we retrieve the article
+    Article storage ownArticle = ownArticles[_id];
+
+    articleCounterSell++;
+    articles[articleCounterSell] = ownArticle;
+    delete (ownArticles[_id]);
+    }
+    
+    //remove from market 
+
 
     // buy an article
     function buyArticle(uint _id) public payable {
