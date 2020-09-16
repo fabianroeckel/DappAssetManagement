@@ -1,10 +1,9 @@
 pragma solidity >0.4.99 <0.8.0;
 
 contract AssetManagement {
-
     // Custom types
     struct Article {
-        uint id;
+        uint256 id;
         address payable seller;
         address buyer;
         string name;
@@ -14,8 +13,8 @@ contract AssetManagement {
     }
 
     // State variables
-    uint articleCounter;
-    uint articleCounterSell;
+    uint256 articleCounter;
+    uint256 articleCounterSell;
     address seller;
     address buyer;
     string name;
@@ -23,28 +22,33 @@ contract AssetManagement {
     uint256 price;
 
     //Marktplatz
-    mapping(uint => Article) public articles;
+    mapping(uint256 => Article) public articles;
 
     //All articles !not! on the market
-    mapping(uint => Article) public ownArticles;
+    mapping(uint256 => Article) public ownArticles;
 
     // Events
-    event LogSellArticle (
-        uint indexed _id,
+    event LogSellArticle(
+        uint256 indexed _id,
         address indexed _seller,
         string _name,
-        uint256 _price);
+        uint256 _price
+    );
 
-    event LogBuyArticle (
-        uint indexed _id,
+    event LogBuyArticle(
+        uint256 indexed _id,
         address indexed _seller,
         address indexed _buyer,
         string _name,
-        uint256 _price);
-
+        uint256 _price
+    );
 
     //create new Asset for own vault
-    function createAsset (string memory _name, string memory _description, uint256 _price) public {
+    function createAsset(
+        string memory _name,
+        string memory _description,
+        uint256 _price
+    ) public {
         // a new article
         articleCounter++;
 
@@ -60,34 +64,35 @@ contract AssetManagement {
     }
 
     // fetch and returns all article IDs available for sale
-    function getOwnedAssets() public view returns (uint[]memory) {
+    function getOwnedAssets() public view returns (uint256[] memory) {
         // we check whether there is at least one article
-        if(articleCounter == 0) {
-            return new uint[](0);
+        if (articleCounter == 0) {
+            return new uint256[](0);
         }
 
         // prepare output arrays
-        uint[] memory articleIds = new uint[](articleCounter);
-        uint numberOfArticlesOwned = 0;
+        uint256[] memory articleIds = new uint256[](articleCounter);
+        uint256 numberOfArticlesOwned = 0;
         // iterate over articles
-        for (uint i = 1; i <= articleCounter; i++) {
+        for (uint256 i = 1; i <= articleCounter; i++) {
             articleIds[numberOfArticlesOwned] = ownArticles[i].id;
-            numberOfArticlesOwned++;  
-            }
-      
-        
+            numberOfArticlesOwned++;
+        }
+
         // copy the articleIds array into the smaller forSale array
-        uint[] memory ownedAssets = new uint[](numberOfArticlesOwned);
-        for (uint j = 0; j < numberOfArticlesOwned; j++) {
+        uint256[] memory ownedAssets = new uint256[](numberOfArticlesOwned);
+        for (uint256 j = 0; j < numberOfArticlesOwned; j++) {
             ownedAssets[j] = articleIds[j];
         }
         return ownedAssets;
-
     }
 
-
     // sell an article
-    function sellArticle(string memory _name, string memory _description, uint256 _price) public {
+    function sellArticle(
+        string memory _name,
+        string memory _description,
+        uint256 _price
+    ) public {
         // a new article
         articleCounterSell++;
 
@@ -103,34 +108,40 @@ contract AssetManagement {
         // trigger the event
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
-    
-    function sentToMarket(uint _id) public {
-    
-    //we check wether there is at least one owned article
-    require (articleCounter > 0, "There should be at least one owned article");
 
-    //we check whether the article exists
-    require (_id > 0 && _id <= articleCounter, "Article with this id does not exits");
+    function sentToMarket(uint256 _id) public {
+        //we check wether there is at least one owned article
+        require(
+            articleCounter > 0,
+            "There should be at least one owned article"
+        );
 
-    // we retrieve the article
-    Article storage ownArticle = ownArticles[_id];
+        //we check whether the article exists
+        require(
+            _id > 0 && _id <= articleCounter,
+            "Article with this id does not exits"
+        );
 
-    articleCounterSell++;
-    articles[articleCounterSell] = ownArticle;
-    delete (ownArticles[_id]);
+        // we retrieve the article
+        Article storage ownArticle = ownArticles[_id];
+
+        articleCounterSell++;
+        articles[articleCounterSell] = ownArticle;
+        delete (ownArticles[_id]);
     }
-    
-    //remove from market 
 
+    //remove from market
 
     // buy an article
-    function buyArticle(uint _id) public payable {
-
+    function buyArticle(uint256 _id) public payable {
         // we check whether there is at least one article
         require(articleCounterSell > 0, "There should be at least one article");
 
         // we check whether the article exists
-        require(_id > 0 && _id <= articleCounterSell, "Article with this id does not exist");
+        require(
+            _id > 0 && _id <= articleCounterSell,
+            "Article with this id does not exist"
+        );
 
         // we retrieve the article
         Article storage article = articles[_id];
@@ -139,10 +150,16 @@ contract AssetManagement {
         require(article.buyer == address(0), "Article was already sold");
 
         // we don't allow the seller to buy his/her own article
-        require(article.seller != msg.sender, "Seller cannot buy his own article");
+        require(
+            article.seller != msg.sender,
+            "Seller cannot buy his own article"
+        );
 
         // we check whether the value sent corresponds to the article price
-        require(article.price == msg.value, "Value provided does not match price of article");
+        require(
+            article.price == msg.value,
+            "Value provided does not match price of article"
+        );
 
         // keep buyer's information
         article.buyer = msg.sender;
@@ -151,32 +168,38 @@ contract AssetManagement {
         article.seller.transfer(msg.value);
 
         // trigger the event
-        emit LogBuyArticle(_id, article.seller, article.buyer, article.name, article.price);
+        emit LogBuyArticle(
+            _id,
+            article.seller,
+            article.buyer,
+            article.name,
+            article.price
+        );
     }
 
     // fetch the number of articles in the contract
-    function getNumberOfArticles() public view returns (uint) {
+    function getNumberOfArticles() public view returns (uint256) {
         return articleCounter;
     }
-       // fetch the number of articles in the contract
-    function getNumberOfSellingArticles() public view returns (uint) {
+
+    // fetch the number of articles in the contract
+    function getNumberOfSellingArticles() public view returns (uint256) {
         return articleCounterSell;
     }
 
-
     // fetch and returns all article IDs available for sale
-    function getArticlesForSale() public view returns (uint[]memory) {
+    function getArticlesForSale() public view returns (uint256[] memory) {
         // we check whether there is at least one article
-        if(articleCounterSell == 0) {
-            return new uint[](0);
+        if (articleCounterSell == 0) {
+            return new uint256[](0);
         }
 
         // prepare output arrays
-        uint[] memory articleIds = new uint[](articleCounterSell);
+        uint256[] memory articleIds = new uint256[](articleCounterSell);
 
-        uint numberOfArticlesForSale = 0;
+        uint256 numberOfArticlesForSale = 0;
         // iterate over articles
-        for (uint i = 1; i <= articleCounterSell; i++) {
+        for (uint256 i = 1; i <= articleCounterSell; i++) {
             // keep only the ID for the article not already sold
             if (articles[i].buyer == address(0)) {
                 articleIds[numberOfArticlesForSale] = articles[i].id;
@@ -185,8 +208,8 @@ contract AssetManagement {
         }
 
         // copy the articleIds array into the smaller forSale array
-        uint[] memory forSale = new uint[](numberOfArticlesForSale);
-        for (uint j = 0; j < numberOfArticlesForSale; j++) {
+        uint256[] memory forSale = new uint256[](numberOfArticlesForSale);
+        for (uint256 j = 0; j < numberOfArticlesForSale; j++) {
             forSale[j] = articleIds[j];
         }
         return forSale;
