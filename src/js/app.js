@@ -124,6 +124,7 @@ App = {
     } catch (error) {
       console.error(error);
     }
+    App.reloadArticles();
   },
 
   createAsset: async () => {
@@ -183,6 +184,33 @@ App = {
       console.error(error);
     }
   },
+  // Problem! Code is from the buy funtion needs to call function on the Bchain
+  sellOwnArticle: async () => {
+    event.preventDefault();
+    var _articleId = $(event.target).data("id");
+    const articlePriceValue = parseFloat($(event.target).data("value"));
+    const articlePrice = isNaN(articlePriceValue)
+      ? "0"
+      : articlePriceValue.toString();
+    const _price = window.web3.utils.toWei(articlePrice, "ether");
+    console.log("sell id from object: " + _articleId + " sellprice " + _price);
+
+    try {
+      const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+      const transactionReceipt = await assetManagementInstance
+        //needs to call the sell in contract
+        .sellOwnArticle(_articleId, _price, {
+          from: App.account,
+          gas: 5000000,
+        })
+        .on("transactionHash", (hash) => {
+          console.log("transaction hash", hash);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+    App.reloadArticles();
+  },
 
   reloadArticles: async () => {
     // avoid reentry
@@ -197,9 +225,17 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const articleIds = await assetManagementInstance.getArticlesForSale();
+      console.log("IDs in ForSale Row Array: " + articleIds);
       $("#articlesRow").empty();
+      console.log(
+        "Länge Aarry of Articles for Sale in reloadArticels(): " +
+          articleIds.length
+      );
+
       for (let i = 0; i < articleIds.length; i++) {
+        //console.log("Thats the Article i= " + i + " and aticleID ");
         const article = await assetManagementInstance.articles(articleIds[i]);
+        // Problem! if added   -only if artikel is not deleted at that spot
         App.displayArticle(
           article[0],
           article[1],
@@ -208,6 +244,7 @@ App = {
           article[5]
         );
       }
+
       App.loading = false;
     } catch (error) {
       console.error(error);
@@ -217,6 +254,7 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const articleIds2 = await assetManagementInstance.getOwnedAssets();
+      console.log("IDs in Owned Row Array: " + articleIds2);
       $("#articlesRow2").empty();
       for (let i = 0; i < articleIds2.length; i++) {
         const article = await assetManagementInstance.ownArticles(
@@ -254,9 +292,12 @@ App = {
     if (seller == App.account) {
       articleTemplateSell.find(".article-seller-sell").text("You");
       articleTemplateSell.find(".btn-buy").hide();
+      //problem both botton buy and remove a hidden but only one should be hidden
+      //articleTemplateSell.find("remove-asset-market").show();
     } else {
       articleTemplateSell.find(".article-seller-sell").text(seller);
       articleTemplateSell.find(".btn-buy").show();
+      //articleTemplateSell.find("remove-asset-market").hide();
     }
 
     // add this new article
@@ -267,7 +308,6 @@ App = {
     // Retrieve the article placeholder
     const articlesRow2 = $("#articlesRow2");
     const etherPrice = web3.utils.fromWei(price, "ether");
-
     // Retrieve and fill the article template
     var articleTemplateCreate = $("#articleTemplateCreate");
     articleTemplateCreate.find(".panel-title").text(name);
@@ -278,10 +318,20 @@ App = {
     articleTemplateCreate.find(".btn-buy").attr("data-id", id);
     articleTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
 
+    console.log(
+      "ID of: " +
+        id +
+        " Owner Displayed is: " +
+        name +
+        " Seller: " +
+        seller +
+        " line steht am Rand 320 "
+    );
+
     // seller?
     if (seller == App.account) {
       articleTemplateCreate.find(".article-seller-create").text("You");
-      articleTemplateCreate.find(".btn-buy").hide();
+      articleTemplateCreate.find(".btn-buy");
       // add this new article
       articlesRow2.append(articleTemplateCreate.html());
     }

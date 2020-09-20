@@ -1,6 +1,9 @@
 # Truffle
 build
 
+#files to look into 
+KittyCore.sol
+
 # Node
 node_modules
 package-lock.json
@@ -12,3 +15,6 @@ package-lock.json
 logs
 *.log
 npm-debug.log*
+
+#ide spezial
+.vscode/

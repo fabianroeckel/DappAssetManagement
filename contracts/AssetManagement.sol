@@ -9,17 +9,24 @@ contract AssetManagement {
         string name;
         string description;
         uint256 price;
+
         //transaktion history
+    }
+
+    struct Transaction {
+        address usedToBeOwner;
+        //Unix time Sold
+        uint256 timeStampUnixSold;
     }
 
     // State variables
     uint256 articleCounter;
     uint256 articleCounterSell;
-    address seller;
-    address buyer;
-    string name;
-    string description;
-    uint256 price;
+    //address seller;
+    //address buyer;
+    //string name;
+    //string description;
+    //uint256 price;
 
     //Marktplatz
     mapping(uint256 => Article) public articles;
@@ -75,8 +82,10 @@ contract AssetManagement {
         uint256 numberOfArticlesOwned = 0;
         // iterate over articles
         for (uint256 i = 1; i <= articleCounter; i++) {
-            articleIds[numberOfArticlesOwned] = ownArticles[i].id;
-            numberOfArticlesOwned++;
+            if (ownArticles[i].id != 0) {
+                articleIds[numberOfArticlesOwned] = ownArticles[i].id;
+                numberOfArticlesOwned++;
+            }
         }
 
         // copy the articleIds array into the smaller forSale array
@@ -84,6 +93,7 @@ contract AssetManagement {
         for (uint256 j = 0; j < numberOfArticlesOwned; j++) {
             ownedAssets[j] = articleIds[j];
         }
+        //Problem! i change the ouput to see if its changes the outcame
         return ownedAssets;
     }
 
@@ -121,13 +131,36 @@ contract AssetManagement {
             _id > 0 && _id <= articleCounter,
             "Article with this id does not exits"
         );
-
         // we retrieve the article
         Article storage ownArticle = ownArticles[_id];
 
+        //check if articel is allready deleted
+        require(ownArticle.id != 0);
+
         articleCounterSell++;
+        ownArticle.id = articleCounter;
         articles[articleCounterSell] = ownArticle;
+
         delete (ownArticles[_id]);
+    }
+
+    function sellOwnArticle(uint256 _articleId, uint256 _sellPrice) public {
+        Article storage articleForSell = ownArticles[_articleId];
+        if (msg.sender == articleForSell.seller) {
+            // a new article
+            articleCounterSell++;
+            // store this article
+            articles[articleCounterSell] = Article(
+                articleCounterSell,
+                articleForSell.seller,
+                address(0),
+                articleForSell.name,
+                articleForSell.description,
+                _sellPrice
+            );
+            delete (ownArticles[_articleId].seller);
+            delete (ownArticles[_articleId]);
+        }
     }
 
     //remove from market
@@ -149,6 +182,8 @@ contract AssetManagement {
         // we check whether the article has not already been sold
         require(article.buyer == address(0), "Article was already sold");
 
+        //deleted Objects cant be bought
+        require(article.id != 0);
         // we don't allow the seller to buy his/her own article
         require(
             article.seller != msg.sender,
@@ -161,11 +196,22 @@ contract AssetManagement {
             "Value provided does not match price of article"
         );
 
-        // keep buyer's information
-        article.buyer = msg.sender;
+        //selller is new owner
+        article.seller = msg.sender;
+        articleCounter++;
+
+        //importatnt to have right article id form the spot where its located
+        article.id = articleCounter;
+
+        //add Article to all the article owned by some one and not for sale
+        ownArticles[articleCounter] = article;
 
         // the buyer can buy the article
         article.seller.transfer(msg.value);
+
+        //delet Asset form Market
+        delete (articles[_id].seller);
+        delete (articles[_id]);
 
         // trigger the event
         emit LogBuyArticle(
@@ -177,11 +223,13 @@ contract AssetManagement {
         );
     }
 
+    //Problem! number is wrong   -Articles can change owner
     // fetch the number of articles in the contract
     function getNumberOfArticles() public view returns (uint256) {
         return articleCounter;
     }
 
+    //Probelm! number is wrong -Articles can change owner and number jumps up
     // fetch the number of articles in the contract
     function getNumberOfSellingArticles() public view returns (uint256) {
         return articleCounterSell;
@@ -200,8 +248,10 @@ contract AssetManagement {
         uint256 numberOfArticlesForSale = 0;
         // iterate over articles
         for (uint256 i = 1; i <= articleCounterSell; i++) {
-            // keep only the ID for the article not already sold
-            if (articles[i].buyer == address(0)) {
+            // keep only the ID for the article id is 0 when deleted so check it
+            //articels only exist if not deleted while swapping
+            //Attention! deleted articles[i].buyer == address(0) &&
+            if (articles[i].id != 0) {
                 articleIds[numberOfArticlesForSale] = articles[i].id;
                 numberOfArticlesForSale++;
             }
@@ -212,6 +262,7 @@ contract AssetManagement {
         for (uint256 j = 0; j < numberOfArticlesForSale; j++) {
             forSale[j] = articleIds[j];
         }
+        //Attention! changeed the return because not needed ?
         return forSale;
     }
 }
