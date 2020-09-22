@@ -3,6 +3,7 @@ build
 
 #files to look into 
 KittyCore.sol
+KnownOriginDigitalAssetV2.sol
 
 # Node
 node_modules

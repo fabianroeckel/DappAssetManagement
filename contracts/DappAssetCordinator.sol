@@ -5,26 +5,28 @@ contract DappAssetCordinator {
         uint256 id;
         string name;
         string description;
+        address owner;
     }
+    //no Asset with  0
     uint256 assetID = 0;
     //no Asset at 0
     Asset[] allAssets;
+    uint256 totalNumberAssets;
 
-    mapping(uint256 => uint256) positionToAssetIDMapping;
-
-    mapping(uint256 => uint256) assetIDToPositionMap;
+    mapping(uint256 => uint256) assetIDToPosition;
 
     ///@dev Mapps all the asstets to their owners
     mapping(uint256 => address) assetIDToOwnerAddress;
 
     ///@dev Mapps all addresses to a number of assets thy own
-    mapping(address => uint256) totalAssetsOfAddress;
+    mapping(address => uint256) numberAssetsOfAddress;
 
     ///@dev Mapps for every Address the an Arry of Asset IDs owned by the Address
-    mapping(address => uint256[]) ownedAssetsOfAddress;
+    mapping(address => uint256[]) assetIDsByAddress;
 
-    mapping(uint256 => uint256) assetIDtoPositionOwnerArry;
+    mapping(uint256 => uint256) assetIDtoPositionInOwnerArray;
 
+    //  -   -   -   -   -   - Market   -   -   -   -   -   -   -
     // MARKET AREA
     //Idee für dne Markt
     struct MarktSell {
@@ -37,32 +39,43 @@ contract DappAssetCordinator {
     uint256 numberOfAssetsForSale = 0;
 
     //Mapping Id to spot in Marketplace
-    mapping(uint256 => uint256) findSpotMarketPlace;
+    mapping(uint256 => uint256) idToSpotOnMarket;
 
-    //History implemented
-    mapping(uint256 => address[]) idToHistoryOfOwners;
-    mapping(uint256 => uint256[]) idToDateOfTransfer;
+    //  -   -   -   -^   -   -^ Market ^ -   -^   -   -   -   -   -
+
+    //HistoryOfOwners
+    mapping(uint256 => address[]) addToHistoryOfOwners;
+    mapping(uint256 => uint256[]) addToDateOfTransfer;
 
     function createAsset(string memory _name, string memory _description)
         public
         returns (uint256)
     {
+        //global count upgradet !
         assetID++;
-        //ID Placing Strukture implemented
-        uint256 lengthArray = allAssets.length - 1;
-        positionToAssetIDMapping[lengthArray] = assetID;
-        assetIDToPositionMap[assetID] = lengthArray;
 
-        allAssets.push(Asset(assetID, _name, _description));
+        //ID Placing Strukture implemented
+        totalNumberAssets++;
+
+        //add element to totalAssetCount
+        numberAssetsOfAddress[msg.sender] += 1;
+
+        //spot to find Asset in allAsset Array
+        assetIDToPosition[assetID] = allAssets.length - 1;
+
+        //adding to allAssets
+        allAssets.push(Asset(assetID, _name, _description, msg.sender));
+
+        //setting owneraddress in Mapping for id of the asset
         assetIDToOwnerAddress[assetID] = msg.sender;
 
-        //total address Counter‚
-        address senderAddress = msg.sender;
-        uint256 assetCount = totalAssetsOfAddress[senderAddress];
-        totalAssetsOfAddress[senderAddress] = assetCount + 1;
+        //uint256 assetCount = numberAssetsOfAddress[msg.sender];
 
-        //Problem! -check if push is effected by delets ?   -all the other owned asses
-        ownedAssetsOfAddress[senderAddress].push(assetID);
+        //Problem! -check if length is effected by delets ?
+        //set up Address to Assets structure
+        assetIDsByAddress[msg.sender].push(assetID);
+        assetIDtoPositionInOwnerArray[assetID] = assetIDsByAddress[msg.sender]
+            .length;
 
         return assetID;
     }
@@ -70,14 +83,16 @@ contract DappAssetCordinator {
     // Function for History here !!
     //returns the two arrays both same length with owners and a unixTimestamp
     //so the first owner with the unixtime he got that object is arryOfOwners[0], meunixTimeStamp[0]
-    function showAssetHistory(uint256 assetID)
+    function showAssetHistory(uint256 _assetID)
         public
         view
         returns (
-            address[] memory arryOfOwners,
+            address[] memory historyOwners,
             uint256[] memory meunixTimeStamp
         )
-    {}
+    {
+        return (addToHistoryOfOwners[_assetID], addToDateOfTransfer[_assetID]);
+    }
 
     function sellAssetOnMarket(uint256 _assetID, uint256 price)
         public
@@ -85,7 +100,7 @@ contract DappAssetCordinator {
     {
         numberOfAssetsForSale++;
         //Problem! need to check if -1 is real spot at Market and with length give position
-        findSpotMarketPlace[_assetID] = marketPlace.length - 1;
+        idToSpotOnMarket[_assetID] = marketPlace.length - 1;
         marketPlace.push(
             MarktSell(_assetID, price, assetIDToOwnerAddress[_assetID])
         );
@@ -93,8 +108,8 @@ contract DappAssetCordinator {
         emit NewAssetOnMarket(
             uint256(_assetID),
             uint256(price),
-            string(allAssets[assetIDToPositionMap[_assetID]].name),
-            string(allAssets[assetIDToPositionMap[_assetID]].description)
+            string(allAssets[assetIDToPosition[_assetID]].name),
+            string(allAssets[assetIDToPosition[_assetID]].description)
         );
     }
 
@@ -107,14 +122,60 @@ contract DappAssetCordinator {
     //TODO! use Mapping to get the ID Array and convert with positionMapping and countofAssetsOwned by Account
     function getAllAssetsOwnedByAddress(address _addressOwner)
         public
-        returns (uint256)
-    {}
+        returns (uint256[] memory)
+    {
+        assetIDsByAddress[_addressOwner];
+
+        return assetIDsByAddress[_addressOwner];
+    }
 
     //TODO! use allAssets and use totallAccountofAssets
     function getAllAssetsExisting() public returns (uint256[] memory) {}
 
     //TODO!  delte Object by owner mapping and restructuring COMPLICATED! Problem!
-    function deleteAssetByID(uint256 _assetID) public {}
+    function deleteAssetByID(uint256 _assetID) public onlyOwner(_assetID) {
+        //-   -   -   Deleting from allAssets
+        //Set last element at new spot and delete last Spot of Array
+        if (totalNumberAssets > 1) {
+            allAssets[assetIDToPosition[_assetID]] = allAssets[assetIDToPosition[totalNumberAssets]];
+            assetIDToPosition[_assetID] = assetIDToPosition[allAssets[assetIDToPosition[totalNumberAssets]]
+                .id];
+
+            delete (allAssets[assetIDToPosition[totalNumberAssets]]);
+        } else {
+            delete allAssets[assetIDToPosition[_assetID]];
+        }
+
+        //-   -   -   Deleting links to address
+        //delete mapping to address
+        address ownerAddress = assetIDToOwnerAddress[assetID];
+        delete (assetIDToOwnerAddress[assetID]);
+        //decease number of Assets owend by the Address
+        numberAssetsOfAddress[ownerAddress] -= 1;
+
+        uint256 spotOwnerArray = assetIDtoPositionInOwnerArray[_assetID];
+
+        //-   -   -   Deleting from Assets of Address
+        //rearrange assets in Owner Array if more than 1
+        if (assetIDsByAddress[ownerAddress].length > 1) {
+            uint256 spotLastElement = assetIDsByAddress[ownerAddress].length -
+                1;
+            //Up date mapping to Asset for last Element
+
+
+                uint256 lastAssetIDInList
+             = assetIDsByAddress[ownerAddress][spotLastElement];
+            assetIDtoPositionInOwnerArray[lastAssetIDInList] = spotOwnerArray;
+
+            //Take last Element of Addresses Asset IDs and place it on the spot of the deleted Asset
+            assetIDsByAddress[ownerAddress][spotOwnerArray] = assetIDsByAddress[ownerAddress][spotLastElement];
+            delete assetIDsByAddress[ownerAddress][spotLastElement];
+        } else {
+            //only one Element in List just delete it
+            delete assetIDsByAddress[ownerAddress][spotOwnerArray];
+        }
+        //!Problem dont works! realy good
+    }
 
     //Problem! check if the returns of ID is good idea
     function sellDirectToTheMarket(
@@ -156,15 +217,15 @@ contract DappAssetCordinator {
     //checks if the asset id is really for sell
     modifier safeBuying(uint256 id) {
         require(
-            marketPlace[findSpotMarketPlace[id]].assetID != id,
+            marketPlace[idToSpotOnMarket[id]].assetID != id,
             "Asset does not exist at Market Place "
         );
         require(
-            marketPlace[findSpotMarketPlace[id]].owner != msg.sender,
+            marketPlace[idToSpotOnMarket[id]].owner != msg.sender,
             "Seller cannot buy his own article"
         );
         require(
-            marketPlace[findSpotMarketPlace[id]].price == msg.value,
+            marketPlace[idToSpotOnMarket[id]].price == msg.value,
             "Value provided does not match price of article"
         );
         _;

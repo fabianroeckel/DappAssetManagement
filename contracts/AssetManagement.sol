@@ -163,6 +163,12 @@ contract AssetManagement {
     }
 
     //remove from market
+    function removeFromMarket(uint256 _id) public {
+        require(articles[_id].seller == msg.sender);
+        articleCounter++;
+        Article storage articleToMoveToOwn = articles[_id];
+        ownArticles[articleCounter] = articleToMoveToOwn;
+    }
 
     // buy an article
     function buyArticle(uint256 _id) public payable {
@@ -209,17 +215,17 @@ contract AssetManagement {
         article.seller.transfer(msg.value);
 
         //delet Asset form Market
-        delete (articles[_id].seller);
-        delete (articles[_id]);
 
         // trigger the event
         emit LogBuyArticle(
             _id,
             article.seller,
-            article.buyer,
+            msg.sender,
             article.name,
             article.price
         );
+        delete (articles[_id]);
+        delete (articles[_id].seller);
     }
 
     //Problem! number is wrong   -Articles can change owner

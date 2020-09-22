@@ -83,7 +83,7 @@ App = {
               event.id +
               '">' +
               event.returnValues._buyer +
-              " bought " +
+              " bought  " +
               event.returnValues._name +
               "</li>"
           );
@@ -161,7 +161,7 @@ App = {
   buyArticle: async () => {
     event.preventDefault();
 
-    // retrieve the article price
+    // reich htrieve the article price
     var _articleId = $(event.target).data("id");
     const articlePriceValue = parseFloat($(event.target).data("value"));
     const articlePrice = isNaN(articlePriceValue)
