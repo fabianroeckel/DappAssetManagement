@@ -164,10 +164,20 @@ contract AssetManagement {
 
     //remove from market
     function removeFromMarket(uint256 _id) public {
-        require(articles[_id].seller == msg.sender);
-        articleCounter++;
-        Article storage articleToMoveToOwn = articles[_id];
-        ownArticles[articleCounter] = articleToMoveToOwn;
+        Article storage article = articles[_id];
+            // a new article
+            articleCounter++;
+            // store this article
+            ownArticles[articleCounter] = Article(
+                articleCounter,
+                article.seller,
+                address(0),
+                article.name,
+                article.description,
+                article.price
+            );
+            delete (articles[_id].seller);
+            delete (articles[_id]);
     }
 
     // buy an article
@@ -201,9 +211,6 @@ contract AssetManagement {
             "Value provided does not match price of article"
         );
 
-        //selller is new owner
-        article.seller = msg.sender;
-        articleCounter++;
 
         //importatnt to have right article id form the spot where its located
         article.id = articleCounter;
@@ -214,16 +221,32 @@ contract AssetManagement {
         // the buyer can buy the article
         article.seller.transfer(msg.value);
 
-        //delet Asset form Market
+        // keep buyer's information
+        article.buyer = msg.sender;
+
+        //selller is new owner
+        article.seller = msg.sender;
+        articleCounter++;
 
         // trigger the event
         emit LogBuyArticle(
             _id,
             article.seller,
-            msg.sender,
+            article.buyer,
             article.name,
             article.price
         );
+        articleCounter++;
+        ownArticles[articleCounter] = Article(
+                articleCounter,
+                article.seller,
+                address(0),
+                article.name,
+                article.description,
+                article.price
+            );
+
+        //delet Asset form Market
         delete (articles[_id]);
         delete (articles[_id].seller);
     }
