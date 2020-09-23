@@ -93,9 +93,6 @@ App = {
           console.error(error);
         });
     }
-
-    $(".btn-subscribe").hide();
-    $(".btn-unsubscribe").show();
     $(".btn-show-events").show();
   },
 
@@ -212,6 +209,27 @@ App = {
     App.reloadArticles();
   },
 
+  removeArticle: async () => {
+    event.preventDefault();
+    var _articleId = $(event.target).data("id");
+
+    try {
+      const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+      const transactionReceipt = await assetManagementInstance
+        //needs to call the sell in contract
+        .removeFromMarket(_articleId, {
+          from: App.account,
+          gas: 5000000,
+        })
+        .on("transactionHash", (hash) => {
+          console.log("transaction hash", hash);
+        });
+    } catch (error) {
+      console.error(error);
+    }
+    App.reloadArticles();
+  },
+
   reloadArticles: async () => {
     // avoid reentry
     if (App.loading) {
@@ -282,21 +300,24 @@ App = {
 
     // Retrieve and fill the article template
     var articleTemplateSell = $("#articleTemplateSell");
-    articleTemplateSell.find(".panel-title").text(name);
+    articleTemplateSell.find(".article-name-sell").text(name);
     articleTemplateSell.find(".article-description-sell").text(description);
     articleTemplateSell.find(".article-price-sell").text(etherPrice + " ETH");
     articleTemplateSell.find(".btn-buy").attr("data-id", id);
+    articleTemplateSell.find(".btn-remove").attr("data-id", id);
     articleTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
 
     // seller?
     if (seller == App.account) {
       articleTemplateSell.find(".article-seller-sell").text("You");
       articleTemplateSell.find(".btn-buy").hide();
+      articleTemplateSell.find(".btn-remove").show();
       //problem both botton buy and remove a hidden but only one should be hidden
       //articleTemplateSell.find("remove-asset-market").show();
     } else {
       articleTemplateSell.find(".article-seller-sell").text(seller);
       articleTemplateSell.find(".btn-buy").show();
+      articleTemplateSell.find(".btn-remove").hide();
       //articleTemplateSell.find("remove-asset-market").hide();
     }
 
@@ -310,7 +331,7 @@ App = {
     const etherPrice = web3.utils.fromWei(price, "ether");
     // Retrieve and fill the article template
     var articleTemplateCreate = $("#articleTemplateCreate");
-    articleTemplateCreate.find(".panel-title").text(name);
+    articleTemplateCreate.find(".article-name-create").text(name);
     articleTemplateCreate.find(".article-description-create").text(description);
     articleTemplateCreate
       .find(".article-price-create")

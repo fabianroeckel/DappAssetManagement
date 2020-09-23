@@ -34,9 +34,8 @@
       </div>
 
       <div class="row panel panel-default">
-        <div class="panel-heading clearfix">
-          <div class="panel-title">
-            <button class="btn btn-info btn-lg pull-left btn-event btn-subscribe" style="display: none" onclick="App.listenToEvents(); return false;">Subscribe</button>
+        <div class="panel-heading clearfix"> 
+          <div class="panel-title">Below this are the Assets on the  Market 
             <button class="btn btn-info btn-lg pull-left btn-show-events" data-toggle="collapse" data-target="#events" aria-expanded="false"
                     aria-controls="events">Show Events</button>
             <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellArticle">Sell an
@@ -45,24 +44,54 @@
         </div>
         <ul id="events" class="collapse list-group"></ul>
       </div>
-      <H1> Below this are the Assets on the  Market </H1>
-
+      <div class="row criteria">
+        <div class="col-md-2">
+          <strong>Name <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-md-2">
+          <strong>Description <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-md-2">
+          <strong>Price (ETH) <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-md-4">
+          <strong>Sold by <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-md-2">
+          <strong> Actions <i class="arrow down"></i></strong>
+          </div>
+      </div>
       <div id="articlesRow" class="row">
         <!-- ARTICLES TO SELL LOAD HERE -->
       </div>
 
-      <div class="row d-flex align-items-center justify-content-between">
-        <div class="col-8">
-        </div>
-        <div class="col">
-          <button class="btn btn-info btn-lg" data-toggle="modal" data-target="#createAsset">Create an
-            article</button>
+
+      <div class="row panel panel-default">
+        <div class="panel-heading clearfix"> 
+          <div class="panel-title">Your Assets
+            <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#createAsset">Add new Asset</button>
           </div>
-        </div>
-        <h1> Below  this are the Assets owened by the Current User</h1>
-      <div id="articlesRow2" class="row">
-        <!-- OWN ARTICLES LOAD HERE -->
       </div>
+    </div>
+    <div class="row criteria">
+      <div class="col-md-2">
+        <strong>Name: <i class="arrow down"></i></strong>
+      </div>
+      <div class="col-md-2">
+        <strong>Description <i class="arrow down"></i></strong>
+      </div>
+      <div class="col-md-2">
+        <strong>Price (ETH) <i class="arrow down"></i></strong>
+      </div>
+      <div class="col-md-4">
+        <strong>Sold by<i class="arrow down"></i> </strong>
+      </div>
+      <div class="col-md-2">
+        <strong> Actions <i class="arrow down"></i></strong>
+        </div>
+    </div>
+    <div id="articlesRow2" class="row">
+      <!-- OWN ARTICLES LOAD HERE -->
     </div>
   </div>
 
@@ -70,40 +99,57 @@
   <div id="articleTemplateSell" style="display: none;">
     <div class="row-lg-12">
       <div class="panel panel-default panel-article">
-        <div class="panel-heading">
-          <h3 class="panel-title"></h3>
-        </div>
         <div class="panel-body">
-          <strong>Description</strong>: <span class="article-description-sell"></span><br />
-          <strong>Price (ETH)</strong>: <span class="article-price-sell"></span><br />
-          <strong>Sold by</strong>: <span class="article-seller-sell"></span><br />
-        </div>
-        <div class="panel-footer">
-          <button type="button" class="btn btn-primary btn-success btn-buy" onclick="App.buyArticle(event); return false;">Buy</button>
-          <!---Problem!  both button are shown or none instead of just one  -->
-          <button type="button" class="btn btn-primary btn-success btn-buy" return false;>Remove from market</button>
-          <button type="button" class="btn btn-secondary btn-success btn-transactionhistory" data-toggle="collapse" data-target="" aria-expanded="false"
-          aria-controls="events">Show transaction history</button>
-        </div>
+          <div class="col-md-2">
+            <span class="article-name-sell"></span><br />
+          </div>
+          <div class="col-md-2">
+            <span class="article-description-sell"></span><br />
+          </div>
+          <div class="col-md-2">
+            <span class="article-price-sell"></span><br />
+          </div>
+          <div class="col-md-4">
+            <span class="article-seller-sell"></span><br />
+          </div>
+          <div class="col-md-2">
+            <div class="row">
+              <button type="button" class="btn btn-primary btn-success btn-buy" onclick="App.buyArticle(event); return false;">Buy</button>
+              <button type="button" class="btn btn-danger btn-remove" onclick="App.removeArticle(event)">Remove from market</button>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-secondary btn-transactionhistory" data-toggle="collapse" data-target="" aria-expanded="false"
+              aria-controls="events">Transaction history</button>
+            </div>
+          </div>
       </div>
     </div>
   </div>
+</div> 
 <!---added id remove                Artikles owned by the user --> 
   <div id="articleTemplateCreate" style="display: none;">
     <div class="row-lg-12">
       <div class="panel panel-default panel-article">
-        <div class="panel-heading">
-          <h3 class="panel-title"></h3>
-        </div>
         <div class="panel-body">
-          <strong>Description</strong>: <span class="article-description-create"></span><br />
-          <strong>Price (ETH)</strong>: <span class="article-price-create"></span><br />
-          <strong>Sold by</strong>: <span class="article-seller-create"></span><br />
-        </div>
-        <div class="panel-footer">
-          <button type="button" class="btn btn-primary btn-success btn-buy" onclick="App.sellOwnArticle(event); return false;">Sell</button>
-          <button type="button" class="btn btn-secondary btn-success btn-transactionhistory" data-toggle="collapse" data-target="" aria-expanded="false"
-          aria-controls="events">Show transaction history</button>
+          <div class="col-md-2">
+            <span class="article-name-create"></span><br />
+          </div>
+          <div class="col-md-2">
+            <span class="article-description-create"></span><br />
+          </div>
+          <div class="col-md-2">
+            <span class="article-price-create"></span><br />
+          </div>
+          <div class="col-md-4">
+            <span class="article-seller-create"></span><br />
+          </div>
+          <div class="col-md-2">
+            <div class="row">
+              <button type="button" class="btn btn-primary btn-success btn-buy" onclick="App.sellOwnArticle(event); return false;">Sell</button>
+              <button type="button" class="btn btn-secondary btn-success btn-transactionhistory" data-toggle="collapse" data-target="" aria-expanded="false"
+              aria-controls="events">Show transaction history</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

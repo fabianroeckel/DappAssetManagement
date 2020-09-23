@@ -23,3 +23,27 @@ img {
     max-height: 30px;
     height: auto;
   }
+
+  .panel-title{
+    text-align: center;
+    font-size: 32px;
+  }
+
+  .panel-body{
+    text-align: left;
+  }
+
+  .criteria {
+      font-size: 18px;
+
+  }
+  .arrow {
+    border: solid grey;
+    border-width: 0 3px 3px 0;
+    display: inline-block;
+    padding: 3px;
+  }
+  .down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
