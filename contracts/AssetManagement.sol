@@ -9,6 +9,7 @@ contract AssetManagement {
         string name;
         string description;
         uint256 price;
+        uint256 uniqueId;
         //transaktion history
     }
 
@@ -17,7 +18,7 @@ contract AssetManagement {
         //Unix time Sold
         uint256 timeStampUnixSold;
     }
-
+    uint256 uniqueId = 0;
     // State variables
     uint256 articleCounter;
     uint256 articleCounterSell;
@@ -32,6 +33,26 @@ contract AssetManagement {
 
     //All articles !not! on the market
     mapping(uint256 => Article) public ownArticles;
+
+    //
+
+    //-    -   -   -   -   -   -   -   -   -   -   History
+    mapping(uint256 => address[]) public ownerHistory;
+    //
+    mapping(uint256 => uint256[]) public timeStamps;
+
+    function setTimeAndOwner(uint256 _id) internal {
+        ownerHistory[_id].push(msg.sender);
+        timeStamps[_id].push(block.timestamp);
+    }
+
+    function getTimeAndOwner(uint256 _id, uint256 position)
+        public
+        view
+        returns (address owner, uint256 time)
+    {
+        return (ownerHistory[_id][position], timeStamps[_id][position]);
+    }
 
     // Events
     event LogSellArticle(
@@ -57,7 +78,8 @@ contract AssetManagement {
     ) public {
         // a new article
         articleCounter++;
-
+        uniqueId++;
+        setTimeAndOwner(uniqueId);
         // store this article
         ownArticles[articleCounter] = Article(
             articleCounter,
@@ -65,7 +87,8 @@ contract AssetManagement {
             address(0),
             _name,
             _description,
-            _price
+            _price,
+            uniqueId
         );
     }
 
@@ -104,7 +127,7 @@ contract AssetManagement {
     ) public {
         // a new article
         articleCounterSell++;
-
+        uniqueId++;
         // store this article
         articles[articleCounterSell] = Article(
             articleCounterSell,
@@ -112,7 +135,8 @@ contract AssetManagement {
             address(0),
             _name,
             _description,
-            _price
+            _price,
+            uniqueId
         );
         // trigger the event
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
@@ -149,13 +173,15 @@ contract AssetManagement {
             // a new article
             articleCounterSell++;
             // store this article
+            uniqueId = ownArticles[_articleId].uniqueId;
             articles[articleCounterSell] = Article(
                 articleCounterSell,
                 articleForSell.seller,
                 address(0),
                 articleForSell.name,
                 articleForSell.description,
-                _sellPrice
+                _sellPrice,
+                uniqueId
             );
             delete (ownArticles[_articleId].seller);
             delete (ownArticles[_articleId]);
@@ -165,19 +191,21 @@ contract AssetManagement {
     //remove from market
     function removeFromMarket(uint256 _id) public {
         Article storage article = articles[_id];
-            // a new article
-            articleCounter++;
-            // store this article
-            ownArticles[articleCounter] = Article(
-                articleCounter,
-                article.seller,
-                address(0),
-                article.name,
-                article.description,
-                article.price
-            );
-            delete (articles[_id].seller);
-            delete (articles[_id]);
+        // a new article
+        articleCounter++;
+        // store this article
+
+        ownArticles[articleCounter] = Article(
+            articleCounter,
+            article.seller,
+            address(0),
+            article.name,
+            article.description,
+            article.price,
+            article.uniqueId
+        );
+        delete (articles[_id].seller);
+        delete (articles[_id]);
     }
 
     // buy an article
@@ -211,6 +239,8 @@ contract AssetManagement {
             "Value provided does not match price of article"
         );
 
+        //add to hisory
+        setTimeAndOwner(uniqueId);
 
         //importatnt to have right article id form the spot where its located
         article.id = articleCounter;
@@ -223,6 +253,9 @@ contract AssetManagement {
 
         // keep buyer's information
         article.buyer = msg.sender;
+
+        //add to hisory
+        setTimeAndOwner(_id);
 
         //selller is new owner
         article.seller = msg.sender;
@@ -238,13 +271,14 @@ contract AssetManagement {
         );
         articleCounter++;
         ownArticles[articleCounter] = Article(
-                articleCounter,
-                article.seller,
-                address(0),
-                article.name,
-                article.description,
-                article.price
-            );
+            articleCounter,
+            article.seller,
+            address(0),
+            article.name,
+            article.description,
+            article.price,
+            article.uniqueId
+        );
 
         //delet Asset form Market
         delete (articles[_id]);
