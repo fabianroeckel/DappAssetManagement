@@ -36,9 +36,8 @@ contract AssetManagement {
 
     //
 
-    //-    -   -   -   -   -   -   -   -   -   -   History
+    //-    -   -   -   -   -   -   -                         -   -   -   History
     mapping(uint256 => address[]) public ownerHistory;
-    //
     mapping(uint256 => uint256[]) public timeStamps;
 
     function setTimeAndOwner(uint256 _id) internal {
@@ -54,6 +53,7 @@ contract AssetManagement {
         return (ownerHistory[_id][position], timeStamps[_id][position]);
     }
 
+    //-    -   -   -   -   -   -   -      ^       ^      ^      -   -   -   History
     // Events
     event LogSellArticle(
         uint256 indexed _id,
