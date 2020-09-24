@@ -53,6 +53,14 @@ contract AssetManagement {
         return (ownerHistory[_id][position], timeStamps[_id][position]);
     }
 
+    function getArrayLength(uint256 _id)
+        public
+        view
+        returns (uint256 arraylength)
+    {
+        return ownerHistory[_id].length;
+    }
+
     //-    -   -   -   -   -   -   -      ^       ^      ^      -   -   -   History
     // Events
     event LogSellArticle(

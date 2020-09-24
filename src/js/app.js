@@ -96,6 +96,80 @@ App = {
     $(".btn-show-events").show();
   },
 
+  timeConverter(UNIX_timestamp) {
+    var a = new Date(UNIX_timestamp * 1000);
+    var months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    var year = a.getFullYear();
+    var month = months[a.getMonth()];
+    var date = a.getDate();
+    var hour = a.getHours();
+    var min = a.getMinutes();
+    var sec = a.getSeconds();
+    var time =
+      date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
+    return time;
+  },
+
+  getTransactionHistory: async (event) => {
+    var _articleId = $(event.target).data("id");
+    console.log(_articleId);
+    const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+    const arraylength = await assetManagementInstance.getArrayLength(_articleId);
+    console.log(arraylength.length);
+    $("#transactionHistory").empty();
+    for (let i=0; i< arraylength.length; i++){
+      const test = await assetManagementInstance
+      .getTimeAndOwner(_articleId, i)
+      .then( (event) => {
+        const localizedDate = new Date(event.time * 1000).toLocaleDateString() + " um " + new Date(event.time * 1000).toLocaleTimeString();
+        $("#transactionHistory").append(
+          '<li class="list-group-item my-3">' + "<b>Besitzer</b>: " + 
+          event.owner
+          + ", <b>gekauft am</b>: " + localizedDate + 
+                  "</li>"
+          );
+      }) 
+    }
+    $(".btn-transactionHistory").show();
+  },
+
+
+  getTransactionHistorySell: async (event) => {
+    var _articleId = $(event.target).data("id");
+    console.log(_articleId);
+    const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+    const arraylength = await assetManagementInstance.getArrayLength(_articleId);
+    console.log(arraylength.length);
+    $("#transactionHistorySell").empty();
+    for (let i=0; i< arraylength.length; i++){
+      const test = await assetManagementInstance
+      .getTimeAndOwner(_articleId, i)
+      .then( (result) => {
+        const localizedDate = new Date(result.time * 1000).toLocaleDateString() + " um " + new Date(result.time * 1000).toLocaleTimeString();
+        $("#transactionHistorySell").append(
+          '<li class="list-group-item my-3">' + "<b>Besitzer</b>: " + 
+          result.owner
+          + ", <b>gekauft am</b>: " + localizedDate + 
+                  "</li>"
+          );
+      }) 
+    }
+    $(".btn-transactionHistorySell").show();
+  },
+
   sellArticle: async () => {
     const articlePriceValue = parseFloat($("#article_price_sell").val());
     const articlePrice = isNaN(articlePriceValue)
@@ -112,7 +186,7 @@ App = {
       const transactionReceipt = await assetManagementInstance
         .sellArticle(_name, _description, _price, {
           from: App.account,
-          gas: 5000000,
+          gas: 6000000,
         })
         .on("transactionHash", (hash) => {
           console.log("transaction hash", hash);
@@ -143,7 +217,7 @@ App = {
       const transactionReceipt = await assetManagementInstance
         .createAsset(_nameCreate, _descriptionCreate, _priceCreate, {
           from: App.account,
-          gas: 5000000,
+          gas: 6000000,
         })
         .on("transactionHash", (hash) => {
           console.log("transaction hash", hash);
@@ -171,7 +245,7 @@ App = {
         .buyArticle(_articleId, {
           from: App.account,
           value: _price,
-          gas: 500000,
+          gas: 600000,
         })
         .on("transactionHash", (hash) => {
           console.log("transaction hash", hash);
@@ -181,8 +255,8 @@ App = {
       console.error(error);
     }
   },
-  // Problem! Code is from the buy funtion needs to call function on the Bchain
-  sellOwnArticle: async () => {
+
+  sellOwnArticle: async (event) => {
     event.preventDefault();
     var _articleId = $(event.target).data("id");
     const articlePriceValue = parseFloat($(event.target).data("value"));
@@ -195,7 +269,6 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const transactionReceipt = await assetManagementInstance
-        //needs to call the sell in contract
         .sellOwnArticle(_articleId, _price, {
           from: App.account,
           gas: 5000000,
@@ -216,7 +289,6 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const transactionReceipt = await assetManagementInstance
-        //needs to call the sell in contract
         .removeFromMarket(_articleId, {
           from: App.account,
           gas: 5000000,
@@ -259,7 +331,8 @@ App = {
           article[1],
           article[3],
           article[4],
-          article[5]
+          article[5],
+          article[6]
         );
       }
 
@@ -283,7 +356,8 @@ App = {
           article[1],
           article[3],
           article[4],
-          article[5]
+          article[5],
+          article[6]
         );
       }
       App.loading = false;
@@ -293,7 +367,7 @@ App = {
     }
   },
 
-  displayArticle: (id, seller, name, description, price) => {
+  displayArticle: (id, seller, name, description, price, uniqueId) => {
     // Retrieve the article placeholder
     const articlesRow = $("#articlesRow");
     const etherPrice = web3.utils.fromWei(price, "ether");
@@ -304,6 +378,12 @@ App = {
     articleTemplateSell.find(".article-description-sell").text(description);
     articleTemplateSell.find(".article-price-sell").text(etherPrice + " ETH");
     articleTemplateSell.find(".btn-buy").attr("data-id", id);
+    articleTemplateSell
+      .find(".btn-transactionHistory")
+      .attr("data-id", uniqueId);
+      articleTemplateSell
+      .find(".btn-transactionHistorySell")
+      .attr("data-id", uniqueId);
     articleTemplateSell.find(".btn-remove").attr("data-id", id);
     articleTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
 
@@ -312,8 +392,6 @@ App = {
       articleTemplateSell.find(".article-seller-sell").text("You");
       articleTemplateSell.find(".btn-buy").hide();
       articleTemplateSell.find(".btn-remove").show();
-      //problem both botton buy and remove a hidden but only one should be hidden
-      //articleTemplateSell.find("remove-asset-market").show();
     } else {
       articleTemplateSell.find(".article-seller-sell").text(seller);
       articleTemplateSell.find(".btn-buy").show();
@@ -325,7 +403,7 @@ App = {
     articlesRow.append(articleTemplateSell.html());
   },
 
-  displayOwnedArticle: (id, seller, name, description, price) => {
+  displayOwnedArticle: (id, seller, name, description, price, uniqueId) => {
     // Retrieve the article placeholder
     const articlesRow2 = $("#articlesRow2");
     const etherPrice = web3.utils.fromWei(price, "ether");
@@ -338,7 +416,12 @@ App = {
       .text(etherPrice + " ETH");
     articleTemplateCreate.find(".btn-buy").attr("data-id", id);
     articleTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
-
+    articleTemplateCreate
+      .find(".btn-transactionHistory")
+      .attr("data-id", uniqueId);
+      articleTemplateCreate
+      .find(".btn-transactionHistorySell")
+      .attr("data-id", uniqueId);
     console.log(
       "ID of: " +
         id +

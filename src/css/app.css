@@ -3,6 +3,11 @@ body {
     padding-bottom: 120px;
 }
 
+p {
+  margin: 0;
+  font-weight: bold;
+}
+
 .footer {
     position: absolute;
     left: 0;
@@ -46,4 +51,9 @@ img {
   .down {
     transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
+  }
+
+  .desc {
+    width: 100%;
+    text-align: center;
   }
