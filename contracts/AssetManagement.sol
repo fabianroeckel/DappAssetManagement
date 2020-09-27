@@ -266,7 +266,7 @@ contract AssetManagement {
         setTimeAndOwner(uniqueId);
 
         //importatnt to have right article id form the spot where its located
-        article.id = articleCounter;
+        articleCounter++;
 
         //add Article to all the article owned by some one and not for sale
         ownArticles[articleCounter] = article;
