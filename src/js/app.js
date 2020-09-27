@@ -98,6 +98,24 @@ App = {
           console.error(error);
         });
     }
+    if (App.logOffMarketEventListener == null) {
+      App.logOffMarketEventListener = assetManagementInstance
+        .LogOffMarket({ fromBlock: "0" })
+        .on("data", (event) => {
+          $("#" + event.id).remove();
+          $("#events").append(
+            '<li class="list-group-item" id="' +
+              event.id +
+              '">' +
+              event.returnValues._name +
+              " isn't for sale anymore.</li>"
+          );
+          App.reloadArticles();
+        })
+        .on("error", (error) => {
+          console.error(error);
+        });
+    }
     $(".btn-show-events").show();
   },
 

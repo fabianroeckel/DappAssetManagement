@@ -78,6 +78,14 @@ contract AssetManagement {
         uint256 _price
     );
 
+    event LogOffMarket(
+        uint256 indexed _id,
+        address indexed _seller,
+        address indexed _buyer,
+        string _name,
+        uint256 _price
+    );
+
     //create new Asset for own vault
     function createAsset(
         string memory _name,
@@ -150,6 +158,8 @@ contract AssetManagement {
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
 
+
+    //wird aktuell nicht benutzt oder?
     function sentToMarket(uint256 _id) public {
         //we check wether there is at least one owned article
         require(
@@ -164,6 +174,9 @@ contract AssetManagement {
         );
         // we retrieve the article
         Article storage ownArticle = ownArticles[_id];
+
+        //emit event for Market ticker
+        emit LogSellArticle(articleCounterSell, msg.sender, ownArticle.name, ownArticle.price);
 
         //check if articel is allready deleted
         require(ownArticle.id != 0);
@@ -191,6 +204,7 @@ contract AssetManagement {
                 _sellPrice,
                 uniqueId
             );
+            emit LogSellArticle(articleCounterSell, msg.sender, articleForSell.name, articleForSell.price);
             delete (ownArticles[_articleId].seller);
             delete (ownArticles[_articleId]);
         }
@@ -212,6 +226,7 @@ contract AssetManagement {
             article.price,
             article.uniqueId
         );
+        emit LogOffMarket(article.id, article.seller, article.buyer, article.name, article.price);
         delete (articles[_id].seller);
         delete (articles[_id]);
     }
