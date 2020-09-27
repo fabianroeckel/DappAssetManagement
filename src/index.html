@@ -1,316 +1,414 @@
-
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dapp Asset Management</title>
 
+    <!-- Latest compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
 
-  <title>Dapp Asset Management</title>
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
- <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<!-- Popper JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <!-- Application -->
+    <link href="css/app.css" rel="stylesheet" />
+  </head>
 
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <!-- Application -->
-  <link href="css/app.css" rel="stylesheet">
-
-</head>
-
-<body>
-  <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="#">
-      <div class="col-auto">
-      <img src="images/cryptocurrency.png" width="30" height="30" class="d-inline-block align-top"  alt="">
-      Dapp Asset Management
-    </div>
-    </a>
-    <div class="row justify-content-between mt-3">
-      <div class="col-auto">
-        <img src="images/cryptocurrency.png" class="rounded float-left">
-        <p id="accountBalance" class="welcome pull-left"></p>
+  <body>
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <div class="col-auto">
+          <img
+            src="images/cryptocurrency.png"
+            width="30"
+            height="30"
+            class="d-inline-block align-top"
+            alt=""
+          />
+          Dapp Asset Management
+        </div>
+      </a>
+      <div class="row justify-content-between mt-3">
+        <div class="col-auto">
+          <img src="images/cryptocurrency.png" class="rounded float-left" />
+          <p id="accountBalance" class="welcome pull-left"></p>
+        </div>
+        <div class="col-auto">
+          <p id="account" class="welcome pull-right"></p>
+        </div>
       </div>
-      <div class="col-auto">
-        <p id="account" class="welcome pull-right"></p>
-      </div>
-    </div>
-  </nav>
+    </nav>
 
-  <div class="container">
-    <div class="row justify-content-between mt-5">
-      <div class="col-auto">
-        <h1>Market</h1>
+    <div class="container">
+      <div class="row justify-content-between mt-5">
+        <div class="col-auto">
+          <h1>Market</h1>
+        </div>
+        <div class="col-auto">
+          <button
+            class="btn btn-info btn-lg pull-left btn-show-events"
+            data-toggle="collapse"
+            data-target="#events"
+            aria-expanded="false"
+            aria-controls="events"
+          >
+            Show Events
+          </button>
+          <button
+            class="btn btn-info btn-lg pull-right"
+            data-toggle="modal"
+            data-target="#sellingModal"
+          >
+            Sell an Asset
+          </button>
+        </div>
       </div>
-      <div class="col-auto">
-        <button class="btn btn-info btn-lg pull-left btn-show-events" data-toggle="collapse" data-target="#events" aria-expanded="false"
-                  aria-controls="events">Show Events</button>
-          <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellingModal">Sell an
-            Asset</button>
-      </div>
-    </div>
 
-    <div class="row justify-content-end">
-      <div class="col-6">
-        <ul id="events" class="collapse list-group"></ul>
+      <div class="row justify-content-end">
+        <div class="col-6">
+          <ul id="events" class="collapse list-group"></ul>
+        </div>
       </div>
-    </div>
 
-    <div class="row criteria">
-      <div class="col-1">
+      <div class="row criteria">
+        <div class="col-1"></div>
+        <div class="col-2">
+          <strong>Name <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-2">
+          <strong>Description <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-1">
+          <strong>Price<i class="arrow down"></i></strong>
+        </div>
+        <div class="col-3">
+          <strong>Sold by <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-3">
+          <strong>Actions <i class="arrow down"></i></strong>
+        </div>
+      </div>
 
+      <div
+        id="articlesRow"
+        class="row align-items-start"
+        style="min-height: 400px"
+      >
+        <!-- ARTICLES TO SELL LOAD HERE -->
       </div>
-      <div class="col-2">
-        <strong>Name <i class="arrow down"></i></strong>
-      </div>
-      <div class="col-2">
-        <strong>Description <i class="arrow down"></i></strong>
-      </div>
-      <div class="col-1">
-        <strong>Price<i class="arrow down"></i></strong>
-      </div>
-      <div class="col-3">
-        <strong>Sold by <i class="arrow down"></i></strong>
-      </div>
-      <div class="col-3">
-        <strong>Actions <i class="arrow down"></i></strong>
-      </div>
-    </div>
 
-    <div id="articlesRow" class="row align-items-start" style="min-height: 400px;">
-      <!-- ARTICLES TO SELL LOAD HERE -->
-    </div>
+      <div class="row justify-content-between my-3">
+        <div class="col-auto">
+          <h1>Your Assets</h1>
+        </div>
+        <div class="col-auto">
+          <button
+            class="btn btn-info btn-lg pull-right"
+            data-toggle="modal"
+            data-target="#createAsset"
+          >
+            Add new Asset
+          </button>
+        </div>
+      </div>
 
+      <div class="row criteria my-2">
+        <div class="col-1"></div>
+        <div class="col-2">
+          <strong>Name: <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-2">
+          <strong>Description <i class="arrow down"></i></strong>
+        </div>
+        <div class="col-1">
+          <strong>Value<i class="arrow down"></i></strong>
+        </div>
+        <div class="col-3">
+          <strong>Owner<i class="arrow down"></i> </strong>
+        </div>
+        <div class="col-3">
+          <strong>Actions <i class="arrow down"></i></strong>
+        </div>
+      </div>
 
-    <div class="row justify-content-between my-3">
-      <div class="col-auto">
-        <h1>Your Assets</h1>
+      <div id="articlesRow2" class="row">
+        <!-- OWN ARTICLES LOAD HERE -->
       </div>
-      <div class="col-auto">
-        <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#createAsset">Add new Asset</button>
-      </div>
-    </div>
 
-    <div class="row criteria my-2">
-      <div class="col-1">
-
-      </div>
-      <div class="col-2">
-        <strong>Name: <i class="arrow down"></i></strong>
-      </div>
-      <div class="col-2">
-        <strong>Description <i class="arrow down"></i></strong>
-      </div>
-      <div class="col-1">
-        <strong>Value<i class="arrow down"></i></strong>
-      </div>
-      <div class="col-3">
-        <strong>Owner<i class="arrow down"></i> </strong>
-      </div>
-      <div class="col-3">
-        <strong>Actions <i class="arrow down"></i></strong>
-      </div>
-    </div>
-
-    <div id="articlesRow2" class="row">
-      <!-- OWN ARTICLES LOAD HERE -->
-    </div>
-
-
-    <div id="articleTemplateSell" style="display: none;">
-      <div class="col-12">
-        <div class="item-container row mx-0 align-items-center my-2 p-2 border">
-          <div class="col-1">
-            <img src="images/anlagegut.png" alt="">
-          </div>
-          <div class="col-2">
-            <p class="article-name-sell"></p>
-          </div>
-          <div class="col-2">
-            <p class="article-description-sell"></p>
-          </div>
-          <div class="col-1">
-            <p class="article-price-sell"></p>
-          </div>
-          <div class="col-3">
-            <p class="article-seller-sell"></p>
-          </div>
-          <div class="col-3">
-            <div class="row">
-              <div class="col-6">
-                <button type="button" class="btn btn-primary btn-success btn-buy w-100 text-center" onclick="App.buyArticle(event); return false;">Buy</button>
-                <button type="button" class="btn btn-danger btn-remove w-100 text-center" onclick="App.removeArticle(event)">Remove</button>
-              </div>
-              <div class="col-6">
-                <button 
-                  type="button"
-                  class="btn btn-secondary w-100 text-center btn-transactionHistorySell"
-                  onclick="App.getTransactionHistorySell(event)" 
-                  data-toggle="collapse"
-                  data-target="#transactionHistorySell"
-                  aria-expanded="false"
-                  aria-controls="transactionHistorySell"
-                >
-                  History
-                </button>
+      <div id="articleTemplateSell" style="display: none">
+        <div class="col-12">
+          <div
+            class="item-container row mx-0 align-items-center my-2 p-2 border"
+          >
+            <div class="col-1">
+              <img src="images/anlagegut.png" alt="" />
+            </div>
+            <div class="col-2">
+              <p class="article-name-sell"></p>
+            </div>
+            <div class="col-2">
+              <p class="article-description-sell"></p>
+            </div>
+            <div class="col-1">
+              <p class="article-price-sell"></p>
+            </div>
+            <div class="col-3">
+              <p class="article-seller-sell"></p>
+            </div>
+            <div class="col-3">
+              <div class="row">
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-success btn-buy w-100 text-center"
+                    onclick="App.buyArticle(event); return false;"
+                  >
+                    Buy
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-remove w-100 text-center"
+                    onclick="App.removeArticle(event)"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-secondary w-100 text-center btn-transactionHistorySell"
+                    onclick="App.getTransactionHistorySell(event)"
+                    data-toggle="collapse"
+                    data-target="#transactionHistorySell"
+                    aria-expanded="false"
+                    aria-controls="transactionHistorySell"
+                  >
+                    History
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class= "col-12">
-            <ul id="transactionHistorySell" class="collapse list-group"></ul>
-        </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- added id / remove Articles owned by the user --> 
-    <div id="articleTemplateCreate" style="display: none;">
-      <div class="col-12">
-        <div class="item-container row mx-0 align-items-center my-2 p-2 border">
-          <div class="col-1">
-            <img src="images/anlagegut.png" alt="">
-          </div>
-          <div class="col-2">
-            <p class="article-name-create"></p>
-          </div>
-          <div class="col-2">
-            <p class="article-description-create"></p>
-          </div>
-          <div class="col-1">
-            <p class="article-price-create"></p>
-          </div>
-          <div class="col-3">
-            <p class="article-seller-create"></p>
-          </div>
-          <div class="col-3">
-            <div class="row">
-              <div class="col-6">
-                <button type="button" class="btn btn-success btn-buy w-100" onclick="App.sellOwnArticle(event); return false;">Sell</button>
-              </div>
-              <div class="col-6">
-                <button
-                  type="button"
-                  class="btn btn-secondary btn-transactionHistory w-100"
-                  onclick="App.getTransactionHistory(event)"
-                  data-toggle="collapse"
-                  data-target="#transactionHistory"
-                  aria-expanded="false"
-                  aria-controls="transactionHistory"
-                >
-                  History
-                </button>
-              </div>
+            <div class="col-12">
+              <ul id="transactionHistorySell" class="collapse list-group"></ul>
             </div>
           </div>
-          <div class="col-12">
-            <ul id="transactionHistory" class="collapse list-group"></ul>
-          </div>
         </div>
       </div>
-    </div>
 
-    <!-- modal form for creating an article -->
-    <div class="modal fade" id="createAsset" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content for creating -->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Create your Asset</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-
-            <div class="row">
-              <div class="col-lg-12">
-                <form>
-                  <div class="form-group">
-                    <label for="article_name">Article name</label>
-                    <input type="text" class="form-control" id="article_name_create" placeholder="Enter the name of your article">
-                  </div>
-                  <div class="form-group">
-                    <label for="price">Price in ETH</label>
-                    <input type="number" class="form-control" id="article_price_create" placeholder="1" pattern="[0-9]+([\.,][0-9]+)?"
-                      step="0.01">
-                  </div>
-                  <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea type="text" class="form-control vresize" id="article_description_create" placeholder="Describe your article"
-                      maxlength="255"></textarea>
-                  </div>
-                </form>
+      <!-- added id / remove Articles owned by the user -->
+      <div id="articleTemplateCreate" style="display: none">
+        <div class="col-12">
+          <div
+            class="item-container row mx-0 align-items-center my-2 p-2 border"
+          >
+            <div class="col-1">
+              <img src="images/anlagegut.png" alt="" />
+            </div>
+            <div class="col-2">
+              <p class="article-name-create"></p>
+            </div>
+            <div class="col-2">
+              <p class="article-description-create"></p>
+            </div>
+            <div class="col-1">
+              <p class="article-price-create"></p>
+            </div>
+            <div class="col-3">
+              <p class="article-seller-create"></p>
+            </div>
+            <div class="col-3">
+              <div class="row">
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-success btn-buy w-100"
+                    onclick="App.sellOwnArticle(event); return false;"
+                  >
+                    Sell
+                  </button>
+                </div>
+                <div class="col-6">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-transactionHistory w-100"
+                    onclick="App.getTransactionHistory(event)"
+                    data-toggle="collapse"
+                    data-target="#transactionHistory"
+                    aria-expanded="false"
+                    aria-controls="transactionHistory"
+                  >
+                    History
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-success" data-dismiss="modal" onclick="App.createAsset(); return false;">Submit</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal form to sell an article -->
-    <div class="modal fade" id="sellingModal" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Sell your article</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
-          <div class="modal-body">
-
-            <div class="row">
-              <div class="col-lg-12">
-                <form>
-                  <div class="form-group">
-                    <label for="article_name_sell">Article name</label>
-                    <input type="text" class="form-control" id="article_name_sell" placeholder="Enter the name of your article">
-                  </div>
-                  <div class="form-group">
-                    <label for="price">Price in ETH</label>
-                    <input type="number" class="form-control" id="article_price_sell" placeholder="1" pattern="[0-9]+([\.,][0-9]+)?"
-                      step="0.01">
-                  </div>
-                  <div class="form-group">
-                    <label for="description">Description</label>
-                    <textarea type="text" class="form-control vresize" id="article_description_sell" placeholder="Describe your article"
-                      maxlength="255"></textarea>
-                  </div>
-                </form>
-              </div>
+            <div class="col-12">
+              <ul id="transactionHistory" class="collapse list-group"></ul>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary btn-success" data-dismiss="modal" onclick="App.sellArticle(); return false;">Sell</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+
+      <!-- modal form for creating an article -->
+      <div class="modal fade" id="createAsset" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content for creating -->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Create your Asset</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-lg-12">
+                  <form>
+                    <div class="form-group">
+                      <label for="description"
+                        >Serial Number Identification</label
+                      >
+                      <textarea
+                        type="text"
+                        class="form-control"
+                        id="article_description_create"
+                        placeholder="Enter Identification Number"
+                        maxlength="255"
+                      ></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="article_name">Article name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="article_name_create"
+                        placeholder="Enter the name of your article"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="price">Price in ETH</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="article_price_create"
+                        placeholder="1"
+                        pattern="[0-9]+([\.,][0-9]+)?"
+                        step="0.01"
+                      />
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-primary btn-success"
+                data-dismiss="modal"
+                onclick="App.createAsset(); return false;"
+              >
+                Submit
+              </button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal form to sell an article -->
+      <div class="modal fade" id="sellingModal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Sell your article</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-lg-12">
+                  <form>
+                    <div class="form-group">
+                      <label for="article_name_sell">Asset name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="article_name_sell"
+                        placeholder="Enter the name of your article"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="price">Price in ETH</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="article_price_sell"
+                        placeholder="1"
+                        pattern="[0-9]+([\.,][0-9]+)?"
+                        step="0.01"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="description">Identification Number</label>
+                      <textarea
+                        type="number"
+                        class="form-control"
+                        id="article_description_sell"
+                        placeholder="Enter Identification Number"
+                        maxlength="25"
+                      ></textarea>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-primary btn-success"
+                data-dismiss="modal"
+                onclick="App.sellArticle(); return false;"
+              >
+                Sell
+              </button>
+              <button type="button" class="btn btn-danger" data-dismiss="modal">
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/web3.min.js"></script>
-  <script src="js/truffle-contract.js"></script>
-  <script src="js/app.js"></script>
-  <div id="sticky-footer" class="navbar fixed-bottom py-4 bg-dark text-white-50">
-    <div class="container text-center text-justify">
-      <small>Fabian Röckel & Leonard Kimmling  &copy; Asset Management</small>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <div
+      id="sticky-footer"
+      class="navbar fixed-bottom py-4 bg-dark text-white-50"
+    >
+      <div class="container text-center text-justify">
+        <small>Fabian Röckel & Leonard Kimmling &copy; Asset Management</small>
+      </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

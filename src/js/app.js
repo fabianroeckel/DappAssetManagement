@@ -1,5 +1,4 @@
 App = {
-  
   web3Provider: null,
   contracts: {},
   account: 0x0,
@@ -14,10 +13,10 @@ App = {
       window.web3 = new Web3(window.ethereum);
       try {
         await window.ethereum.enable();
-        ethereum.on('accountsChanged', function (accounts) {
+        ethereum.on("accountsChanged", function (accounts) {
           App.displayAccountInfo();
           App.reloadArticles();
-        })
+        });
         App.displayAccountInfo();
         return App.initContract();
       } catch (error) {
@@ -47,7 +46,6 @@ App = {
       window.web3.utils.fromWei(balance, "ether") + " ETH"
     );
   },
-
 
   initContract: async () => {
     $.getJSON("AssetManagement.json", (AssetmanagementArtifact) => {
@@ -186,7 +184,7 @@ App = {
       ? "0"
       : articlePriceValue.toString();
     const _name = $("#article_name_sell").val();
-    const _description = $("#article_description_sell").val();
+    const _serialID = $("#article_description_sell").val();
     const _price = window.web3.utils.toWei(articlePrice, "ether");
     if (_name.trim() == "" || _price === "0") {
       return false;
@@ -194,7 +192,7 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const transactionReceipt = await assetManagementInstance
-        .sellArticle(_name, _description, _price, {
+        .sellArticle(_name, _serialID, _price, {
           from: App.account,
           gas: 6000000,
         })
@@ -217,7 +215,7 @@ App = {
       ? "0"
       : articlePriceValueCreate.toString();
     const _nameCreate = $("#article_name_create").val();
-    const _descriptionCreate = $("#article_description_create").val();
+    const _serialIDCreate = $("#article_description_create").val();
     const _priceCreate = window.web3.utils.toWei(articlePriceCreate, "ether");
     if (_nameCreate.trim() == "" || _priceCreate === "0") {
       return false;
@@ -225,7 +223,7 @@ App = {
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const transactionReceipt = await assetManagementInstance
-        .createAsset(_nameCreate, _descriptionCreate, _priceCreate, {
+        .createAsset(_nameCreate, _serialIDCreate, _priceCreate, {
           from: App.account,
           gas: 6000000,
         })
@@ -377,7 +375,7 @@ App = {
     }
   },
 
-  displayArticle: (id, seller, name, description, price, uniqueId) => {
+  displayArticle: (id, seller, name, serialID, price) => {
     // Retrieve the article placeholder
     const articlesRow = $("#articlesRow");
     const etherPrice = web3.utils.fromWei(price, "ether");
@@ -385,15 +383,13 @@ App = {
     // Retrieve and fill the article template
     var articleTemplateSell = $("#articleTemplateSell");
     articleTemplateSell.find(".article-name-sell").text(name);
-    articleTemplateSell.find(".article-description-sell").text(description);
+    articleTemplateSell.find(".article-description-sell").text(serialID);
     articleTemplateSell.find(".article-price-sell").text(etherPrice + " ETH");
     articleTemplateSell.find(".btn-buy").attr("data-id", id);
-    articleTemplateSell
-      .find(".btn-transactionHistory")
-      .attr("data-id", uniqueId);
-    articleTemplateSell
-      .find(".btn-transactionHistorySell")
-      .attr("data-id", uniqueId);
+    articleTemplateSell.find(".btn-transactionHistory");
+    //.attr("data-id", uniqueId);
+    articleTemplateSell.find(".btn-transactionHistorySell");
+    //.attr("data-id", uniqueId);
     articleTemplateSell.find(".btn-remove").attr("data-id", id);
     articleTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
 
@@ -403,7 +399,9 @@ App = {
       articleTemplateSell.find(".btn-buy").hide();
       articleTemplateSell.find(".btn-remove").show();
     } else {
-      articleTemplateSell.find(".article-seller-sell").text(seller.substring(0, 15) + "...");
+      articleTemplateSell
+        .find(".article-seller-sell")
+        .text(seller.substring(0, 15) + "...");
       articleTemplateSell.find(".btn-buy").show();
       articleTemplateSell.find(".btn-remove").hide();
       //articleTemplateSell.find("remove-asset-market").hide();
@@ -413,26 +411,24 @@ App = {
     articlesRow.append(articleTemplateSell.html());
   },
 
-  displayOwnedArticle: (id, seller, name, description, price, uniqueId) => {
+  displayOwnedArticle: (id, seller, name, serialID, price, uniqueId) => {
     // Retrieve the article placeholder
-    
+
     const articlesRow2 = $("#articlesRow2");
     const etherPrice = web3.utils.fromWei(price, "ether");
     // Retrieve and fill the article template
     var articleTemplateCreate = $("#articleTemplateCreate");
     articleTemplateCreate.find(".article-name-create").text(name);
-    articleTemplateCreate.find(".article-description-create").text(description);
+    articleTemplateCreate.find(".article-description-create").text(serialID);
     articleTemplateCreate
       .find(".article-price-create")
       .text(etherPrice + " ETH");
     articleTemplateCreate.find(".btn-buy").attr("data-id", id);
     articleTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
-    articleTemplateCreate
-      .find(".btn-transactionHistory")
-      .attr("data-id", uniqueId);
-    articleTemplateCreate
-      .find(".btn-transactionHistorySell")
-      .attr("data-id", uniqueId);
+    articleTemplateCreate.find(".btn-transactionHistory");
+    //.attr("data-id", uniqueId);
+    articleTemplateCreate.find(".btn-transactionHistorySell");
+    //.attr("data-id", uniqueId);
     console.log(
       "ID of: " +
         id +

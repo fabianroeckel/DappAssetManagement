@@ -7,26 +7,14 @@ contract AssetManagement {
         address payable seller;
         address buyer;
         string name;
-        string description;
+        uint256 serialID;
         uint256 price;
-        uint256 uniqueId;
-        //transaktion history
+        //address[] history;
     }
 
-    struct Transaction {
-        address usedToBeOwner;
-        //Unix time Sold
-        uint256 timeStampUnixSold;
-    }
-    uint256 uniqueId = 0;
     // State variables
     uint256 articleCounter;
     uint256 articleCounterSell;
-    //address seller;
-    //address buyer;
-    //string name;
-    //string description;
-    //uint256 price;
 
     //Marktplatz
     mapping(uint256 => Article) public articles;
@@ -34,31 +22,34 @@ contract AssetManagement {
     //All articles !not! on the market
     mapping(uint256 => Article) public ownArticles;
 
-    //
+    mapping(uint256 => bool) private serialIDVerification;
 
-    //-    -   -   -   -   -   -   -                         -   -   -   History
+    //-    -   -   -   -   -   -   -                                     -   -   -   History
     mapping(uint256 => address[]) public ownerHistory;
     mapping(uint256 => uint256[]) public timeStamps;
 
-    function setTimeAndOwner(uint256 _id) internal {
-        ownerHistory[_id].push(msg.sender);
-        timeStamps[_id].push(block.timestamp);
+    function setTimeAndOwner(uint256 _serialID) internal {
+        ownerHistory[_serialID].push(msg.sender);
+        timeStamps[_serialID].push(block.timestamp);
     }
 
-    function getTimeAndOwner(uint256 _id, uint256 position)
+    function getTimeAndOwner(uint256 _serialID, uint256 position)
         public
         view
         returns (address owner, uint256 time)
     {
-        return (ownerHistory[_id][position], timeStamps[_id][position]);
+        return (
+            ownerHistory[_serialID][position],
+            timeStamps[_serialID][position]
+        );
     }
 
-    function getArrayLength(uint256 _id)
+    function getArrayLength(uint256 _serialID)
         public
         view
         returns (uint256 arraylength)
     {
-        return ownerHistory[_id].length;
+        return ownerHistory[_serialID].length;
     }
 
     //-    -   -   -   -   -   -   -      ^       ^      ^      -   -   -   History
@@ -89,23 +80,33 @@ contract AssetManagement {
     //create new Asset for own vault
     function createAsset(
         string memory _name,
-        string memory _description,
+        uint256 _serialID,
         uint256 _price
     ) public {
-        // a new article
-        articleCounter++;
-        uniqueId++;
-        setTimeAndOwner(uniqueId);
-        // store this article
-        ownArticles[articleCounter] = Article(
-            articleCounter,
-            msg.sender,
-            address(0),
-            _name,
-            _description,
-            _price,
-            uniqueId
+        //we only need one maybe require is the better Version //check for error while calling
+        require(
+            !serialIDVerification[_serialID],
+            "serialId is allready taken and cant be claimed"
         );
+
+        if (!serialIDVerification[_serialID]) {
+            // a new article
+            articleCounter++;
+
+            serialIDVerification[_serialID] = true;
+
+            setTimeAndOwner(_serialID);
+
+            ownArticles[articleCounter] = Article(
+                articleCounter,
+                msg.sender,
+                address(0),
+                _name,
+                _serialID,
+                _price
+            );
+        }
+        // store this article
     }
 
     // fetch and returns all article IDs available for sale
@@ -138,26 +139,29 @@ contract AssetManagement {
     // sell an article
     function sellArticle(
         string memory _name,
-        string memory _description,
+        uint256 _serialID,
         uint256 _price
     ) public {
+        require(
+            !serialIDVerification[_serialID],
+            "serialId is allready taken and cant be claimed"
+        );
+        setTimeAndOwner(_serialID);
         // a new article
         articleCounterSell++;
-        uniqueId++;
+
         // store this article
         articles[articleCounterSell] = Article(
             articleCounterSell,
             msg.sender,
             address(0),
             _name,
-            _description,
-            _price,
-            uniqueId
+            _serialID,
+            _price
         );
         // trigger the event
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
-
 
     //wird aktuell nicht benutzt oder?
     function sentToMarket(uint256 _id) public {
@@ -176,7 +180,12 @@ contract AssetManagement {
         Article storage ownArticle = ownArticles[_id];
 
         //emit event for Market ticker
-        emit LogSellArticle(articleCounterSell, msg.sender, ownArticle.name, ownArticle.price);
+        emit LogSellArticle(
+            articleCounterSell,
+            msg.sender,
+            ownArticle.name,
+            ownArticle.price
+        );
 
         //check if articel is allready deleted
         require(ownArticle.id != 0);
@@ -194,17 +203,20 @@ contract AssetManagement {
             // a new article
             articleCounterSell++;
             // store this article
-            uniqueId = ownArticles[_articleId].uniqueId;
             articles[articleCounterSell] = Article(
                 articleCounterSell,
                 articleForSell.seller,
                 address(0),
                 articleForSell.name,
-                articleForSell.description,
-                _sellPrice,
-                uniqueId
+                articleForSell.serialID,
+                _sellPrice
             );
-            emit LogSellArticle(articleCounterSell, msg.sender, articleForSell.name, articleForSell.price);
+            emit LogSellArticle(
+                articleCounterSell,
+                msg.sender,
+                articleForSell.name,
+                articleForSell.price
+            );
             delete (ownArticles[_articleId].seller);
             delete (ownArticles[_articleId]);
         }
@@ -222,12 +234,17 @@ contract AssetManagement {
             article.seller,
             address(0),
             article.name,
-            article.description,
-            article.price,
-            article.uniqueId
+            article.serialID,
+            article.price
         );
-        emit LogOffMarket(article.id, article.seller, article.buyer, article.name, article.price);
-        delete (articles[_id].seller);
+        emit LogOffMarket(
+            article.id,
+            article.seller,
+            article.buyer,
+            article.name,
+            article.price
+        );
+
         delete (articles[_id]);
     }
 
@@ -263,8 +280,6 @@ contract AssetManagement {
         );
 
         //add to hisory
-        setTimeAndOwner(uniqueId);
-
         //importatnt to have right article id form the spot where its located
         articleCounter++;
 
@@ -278,11 +293,11 @@ contract AssetManagement {
         article.buyer = msg.sender;
 
         //add to hisory
-        setTimeAndOwner(_id);
+        setTimeAndOwner(article.serialID);
 
         //selller is new owner
         article.seller = msg.sender;
-        articleCounter++;
+        // articleCounter++;            !Problem why do we have 3 times increase in articleCounter ?
 
         // trigger the event
         emit LogBuyArticle(
@@ -292,15 +307,14 @@ contract AssetManagement {
             article.name,
             article.price
         );
-        articleCounter++;
+        //articleCounter++;
         ownArticles[articleCounter] = Article(
             articleCounter,
             article.seller,
             address(0),
             article.name,
-            article.description,
-            article.price,
-            article.uniqueId
+            article.serialID,
+            article.price
         );
 
         //delet Asset form Market
