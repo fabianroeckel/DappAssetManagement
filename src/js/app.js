@@ -1,4 +1,5 @@
 App = {
+  
   web3Provider: null,
   contracts: {},
   account: 0x0,
@@ -13,6 +14,9 @@ App = {
       window.web3 = new Web3(window.ethereum);
       try {
         await window.ethereum.enable();
+        ethereum.on('accountsChanged', function (accounts) {
+          App.displayAccountInfo();
+        })
         App.displayAccountInfo();
         return App.initContract();
       } catch (error) {
@@ -42,6 +46,7 @@ App = {
       window.web3.utils.fromWei(balance, "ether") + " ETH"
     );
   },
+
 
   initContract: async () => {
     $.getJSON("AssetManagement.json", (AssetmanagementArtifact) => {
@@ -96,76 +101,62 @@ App = {
     $(".btn-show-events").show();
   },
 
-  timeConverter(UNIX_timestamp) {
-    var a = new Date(UNIX_timestamp * 1000);
-    var months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    var year = a.getFullYear();
-    var month = months[a.getMonth()];
-    var date = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
-    var sec = a.getSeconds();
-    var time =
-      date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
-    return time;
-  },
-
   getTransactionHistory: async (event) => {
     var _articleId = $(event.target).data("id");
     console.log(_articleId);
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-    const arraylength = await assetManagementInstance.getArrayLength(_articleId);
+    const arraylength = await assetManagementInstance.getArrayLength(
+      _articleId
+    );
     console.log(arraylength.length);
     $("#transactionHistory").empty();
-    for (let i=0; i< arraylength.length; i++){
+    for (let i = 0; i < arraylength.length; i++) {
       const test = await assetManagementInstance
-      .getTimeAndOwner(_articleId, i)
-      .then( (event) => {
-        const localizedDate = new Date(event.time * 1000).toLocaleDateString() + " um " + new Date(event.time * 1000).toLocaleTimeString();
-        $("#transactionHistory").append(
-          '<li class="list-group-item my-3">' + "<b>Besitzer</b>: " + 
-          event.owner
-          + ", <b>gekauft am</b>: " + localizedDate + 
-                  "</li>"
+        .getTimeAndOwner(_articleId, i)
+        .then((event) => {
+          const localizedDate =
+            new Date(event.time * 1000).toLocaleDateString() +
+            " um " +
+            new Date(event.time * 1000).toLocaleTimeString();
+          $("#transactionHistory").append(
+            '<li class="list-group-item my-3">' +
+              "<b>Besitzer</b>: " +
+              event.owner +
+              ", <b>gekauft am</b>: " +
+              localizedDate +
+              "</li>"
           );
-      }) 
+        });
     }
     $(".btn-transactionHistory").show();
   },
-
 
   getTransactionHistorySell: async (event) => {
     var _articleId = $(event.target).data("id");
     console.log(_articleId);
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-    const arraylength = await assetManagementInstance.getArrayLength(_articleId);
+    const arraylength = await assetManagementInstance.getArrayLength(
+      _articleId
+    );
     console.log(arraylength.length);
     $("#transactionHistorySell").empty();
-    for (let i=0; i< arraylength.length; i++){
+    for (let i = 0; i < arraylength.length; i++) {
       const test = await assetManagementInstance
-      .getTimeAndOwner(_articleId, i)
-      .then( (result) => {
-        const localizedDate = new Date(result.time * 1000).toLocaleDateString() + " um " + new Date(result.time * 1000).toLocaleTimeString();
-        $("#transactionHistorySell").append(
-          '<li class="list-group-item my-3">' + "<b>Besitzer</b>: " + 
-          result.owner
-          + ", <b>gekauft am</b>: " + localizedDate + 
-                  "</li>"
+        .getTimeAndOwner(_articleId, i)
+        .then((result) => {
+          const localizedDate =
+            new Date(result.time * 1000).toLocaleDateString() +
+            " um " +
+            new Date(result.time * 1000).toLocaleTimeString();
+          $("#transactionHistorySell").append(
+            '<li class="list-group-item my-3">' +
+              "<b>Besitzer</b>: " +
+              result.owner +
+              ", <b>gekauft am</b>: " +
+              localizedDate +
+              "</li>"
           );
-      }) 
+        });
     }
     $(".btn-transactionHistorySell").show();
   },
@@ -381,7 +372,7 @@ App = {
     articleTemplateSell
       .find(".btn-transactionHistory")
       .attr("data-id", uniqueId);
-      articleTemplateSell
+    articleTemplateSell
       .find(".btn-transactionHistorySell")
       .attr("data-id", uniqueId);
     articleTemplateSell.find(".btn-remove").attr("data-id", id);
@@ -419,7 +410,7 @@ App = {
     articleTemplateCreate
       .find(".btn-transactionHistory")
       .attr("data-id", uniqueId);
-      articleTemplateCreate
+    articleTemplateCreate
       .find(".btn-transactionHistorySell")
       .attr("data-id", uniqueId);
     console.log(
