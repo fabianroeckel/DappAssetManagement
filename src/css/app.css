@@ -1,6 +1,7 @@
 body {
     padding-top: 40px;
     padding-bottom: 120px;
+    height: 100%;
 }
 
 p {
@@ -55,4 +56,8 @@ img {
   .desc {
     width: 100%;
     text-align: center;
+  }
+
+  #sticky-footer {
+    flex-shrink: none;
   }

@@ -16,7 +16,7 @@ App = {
         await window.ethereum.enable();
         ethereum.on('accountsChanged', function (accounts) {
           App.displayAccountInfo();
-          reloadArticles();
+          App.reloadArticles();
         })
         App.displayAccountInfo();
         return App.initContract();
