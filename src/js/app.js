@@ -16,6 +16,7 @@ App = {
         await window.ethereum.enable();
         ethereum.on('accountsChanged', function (accounts) {
           App.displayAccountInfo();
+          reloadArticles();
         })
         App.displayAccountInfo();
         return App.initContract();
@@ -402,7 +403,7 @@ App = {
       articleTemplateSell.find(".btn-buy").hide();
       articleTemplateSell.find(".btn-remove").show();
     } else {
-      articleTemplateSell.find(".article-seller-sell").text(seller);
+      articleTemplateSell.find(".article-seller-sell").text(seller.substring(0, 15) + "...");
       articleTemplateSell.find(".btn-buy").show();
       articleTemplateSell.find(".btn-remove").hide();
       //articleTemplateSell.find("remove-asset-market").hide();
@@ -414,6 +415,7 @@ App = {
 
   displayOwnedArticle: (id, seller, name, description, price, uniqueId) => {
     // Retrieve the article placeholder
+    
     const articlesRow2 = $("#articlesRow2");
     const etherPrice = web3.utils.fromWei(price, "ether");
     // Retrieve and fill the article template

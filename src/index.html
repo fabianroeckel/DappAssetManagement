@@ -28,12 +28,14 @@
 </head>
 
 <body>
-  <div class="container">
-    <div class="jumbotron text-center">
-      <h1>Dapp Asset Management</h1>
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+      <div class="col-auto">
+      <img src="images/cryptocurrency.png" width="30" height="30" class="d-inline-block align-top"  alt="">
+      Dapp Asset Management
     </div>
-
-    <div class="row justify-content-between">
+    </a>
+    <div class="row justify-content-between mt-3">
       <div class="col-auto">
         <img src="images/cryptocurrency.png" class="rounded float-left">
         <p id="accountBalance" class="welcome pull-left"></p>
@@ -42,8 +44,10 @@
         <p id="account" class="welcome pull-right"></p>
       </div>
     </div>
+  </nav>
 
-    <div class="row justify-content-between my-3">
+  <div class="container">
+    <div class="row justify-content-between mt-5">
       <div class="col-auto">
         <h1>Market</h1>
       </div>
@@ -62,6 +66,9 @@
     </div>
 
     <div class="row criteria">
+      <div class="col-1">
+
+      </div>
       <div class="col-2">
         <strong>Name <i class="arrow down"></i></strong>
       </div>
@@ -71,7 +78,7 @@
       <div class="col-1">
         <strong>Price<i class="arrow down"></i></strong>
       </div>
-      <div class="col-4">
+      <div class="col-3">
         <strong>Sold by <i class="arrow down"></i></strong>
       </div>
       <div class="col-3">
@@ -79,7 +86,7 @@
       </div>
     </div>
 
-    <div id="articlesRow" class="row align-items-start" style="min-height: 100px;">
+    <div id="articlesRow" class="row align-items-start" style="min-height: 400px;">
       <!-- ARTICLES TO SELL LOAD HERE -->
     </div>
 
@@ -94,6 +101,9 @@
     </div>
 
     <div class="row criteria my-2">
+      <div class="col-1">
+
+      </div>
       <div class="col-2">
         <strong>Name: <i class="arrow down"></i></strong>
       </div>
@@ -103,7 +113,7 @@
       <div class="col-1">
         <strong>Value<i class="arrow down"></i></strong>
       </div>
-      <div class="col-4">
+      <div class="col-3">
         <strong>Owner<i class="arrow down"></i> </strong>
       </div>
       <div class="col-3">
@@ -119,6 +129,9 @@
     <div id="articleTemplateSell" style="display: none;">
       <div class="col-12">
         <div class="item-container row mx-0 align-items-center my-2 p-2 border">
+          <div class="col-1">
+            <img src="images/anlagegut.png" alt="">
+          </div>
           <div class="col-2">
             <p class="article-name-sell"></p>
           </div>
@@ -128,7 +141,7 @@
           <div class="col-1">
             <p class="article-price-sell"></p>
           </div>
-          <div class="col-4">
+          <div class="col-3">
             <p class="article-seller-sell"></p>
           </div>
           <div class="col-3">
@@ -163,6 +176,9 @@
     <div id="articleTemplateCreate" style="display: none;">
       <div class="col-12">
         <div class="item-container row mx-0 align-items-center my-2 p-2 border">
+          <div class="col-1">
+            <img src="images/anlagegut.png" alt="">
+          </div>
           <div class="col-2">
             <p class="article-name-create"></p>
           </div>
@@ -172,7 +188,7 @@
           <div class="col-1">
             <p class="article-price-create"></p>
           </div>
-          <div class="col-4">
+          <div class="col-3">
             <p class="article-seller-create"></p>
           </div>
           <div class="col-3">
