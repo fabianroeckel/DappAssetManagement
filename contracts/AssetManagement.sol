@@ -2,7 +2,7 @@ pragma solidity >0.4.99 <0.8.0;
 
 contract AssetManagement {
     // Custom types
-    struct Article {
+    struct Asset {
         uint256 id;
         address payable seller;
         address buyer;
@@ -12,14 +12,14 @@ contract AssetManagement {
     }
 
     // State variables
-    uint256 articleCounter;
-    uint256 articleCounterSell;
+    uint256 assetCounter;
+    uint256 assetCounterAssetsForSale;
 
-    //All articles on the market (onMarket)
-    mapping(uint256 => Article) public articles;
+    //All assetsForSale on the market (onMarket)
+    mapping(uint256 => Asset) public assetsForSale;
 
-    //All articles !not! on the market (offMarket)
-    mapping(uint256 => Article) public ownArticles;
+    //All assetsForSale !not! on the market (offMarket)
+    mapping(uint256 => Asset) public assetsNotForSale;
 
     mapping(uint256 => bool) private serialIDVerification;
 
@@ -54,16 +54,16 @@ contract AssetManagement {
     //-    -   -   -   -   -   -   -      ^       ^      ^      -   -   -   History
     // Events
 
-    // Event: new article is now for sale
-    event LogSellArticle(
+    // Event: new asset is now for sale
+    event LogSellAsset(
         uint256 indexed _id,
         address indexed _seller,
         string _name,
         uint256 _price
     );
 
-    // Event: article was bought 
-    event LogBuyArticle(
+    // Event: asset was bought 
+    event LogBuyAsset(
         uint256 indexed _id,
         address indexed _seller,
         address indexed _buyer,
@@ -71,7 +71,7 @@ contract AssetManagement {
         uint256 _price
     );
 
-    // Event: article was removed from market 
+    // Event: asset was removed from market 
     event LogOffMarket(
         uint256 indexed _id,
         address indexed _seller,
@@ -99,8 +99,8 @@ contract AssetManagement {
 
         if (!serialIDVerification[_serialID]) {
             
-            // a new article 
-            articleCounter++;
+            // a new asset 
+            assetCounter++;
 
             //check if _serialID is not taken
             serialIDVerification[_serialID] = true;
@@ -108,9 +108,9 @@ contract AssetManagement {
             // !ATENTION! Data for transaction history 
             setTimeAndOwner(_serialID);
 
-            //creation of new article with input paramenter, adding article to mapping (offMarket)
-            ownArticles[articleCounter] = Article(
-                articleCounter,
+            //creation of new asset with input paramenter, adding asset to mapping (offMarket)
+            assetsNotForSale[assetCounter] = Asset(
+                assetCounter,
                 msg.sender,
                 address(0),
                 _name,
@@ -121,35 +121,35 @@ contract AssetManagement {
     }
 
 
-    // fetch and returns all article IDs availablle (offMarket)
+    // fetch and returns all asset IDs availablle (offMarket)
     function getOwnedAssets() public view returns (uint256[] memory) {
-        // we check whether there is at least one article
-        if (articleCounter == 0) {
+        // we check whether there is at least one asset
+        if (assetCounter == 0) {
             return new uint256[](0);
         }
 
         // prepare output arrays
-        uint256[] memory articleIds = new uint256[](articleCounter);
-        uint256 numberOfArticlesOwned = 0;
-        // iterate over articles
-        for (uint256 i = 1; i <= articleCounter; i++) {
-            if (ownArticles[i].id != 0) {
-                articleIds[numberOfArticlesOwned] = ownArticles[i].id;
-                numberOfArticlesOwned++;
+        uint256[] memory assetIDs = new uint256[](assetCounter);
+        uint256 numberOfAssetsOwned = 0;
+        // iterate over assetsForSale
+        for (uint256 i = 1; i <= assetCounter; i++) {
+            if (assetsNotForSale[i].id != 0) {
+                assetIDs[numberOfAssetsOwned] = assetsNotForSale[i].id;
+                numberOfAssetsOwned++;
             }
         }
 
-        // copy the articleIds array into the smaller forSale array
-        uint256[] memory ownedAssets = new uint256[](numberOfArticlesOwned);
-        for (uint256 j = 0; j < numberOfArticlesOwned; j++) {
-            ownedAssets[j] = articleIds[j];
+        // copy the assetIDs array into the smaller forSale array
+        uint256[] memory ownedAssets = new uint256[](numberOfAssetsOwned);
+        for (uint256 j = 0; j < numberOfAssetsOwned; j++) {
+            ownedAssets[j] = assetIDs[j];
         }
         //Problem! i change the ouput to see if its changes the outcame
         return ownedAssets;
     }
 
-    // sell an article, creates a new article which is directly for sale (onMarket)
-    function sellArticle(
+    // sell an asset, creates a new asset which is directly for sale (onMarket)
+    function sellAsset(
         string memory _name,
         uint256 _serialID,
         uint256 _price
@@ -161,11 +161,11 @@ contract AssetManagement {
         if (!serialIDVerification[_serialID]) {
             setTimeAndOwner(_serialID);
             serialIDVerification[_serialID] = true;
-            // a new article
-            articleCounterSell++;
-            // store this article
-            articles[articleCounterSell] = Article(
-                articleCounterSell,
+            // a new asset
+            assetCounterAssetsForSale++;
+            // store this asset
+            assetsForSale[assetCounterAssetsForSale] = Asset(
+                assetCounterAssetsForSale,
                 msg.sender,
                 address(0),
                 _name,
@@ -174,187 +174,187 @@ contract AssetManagement {
             );
         }
         // trigger the event
-        emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
+        emit LogSellAsset(assetCounterAssetsForSale, msg.sender, _name, _price);
     }
 
     /**
     * dev Sell owned asset, which was already created
-    * uint256  _articleId articleID from asset
+    * uint256  _assetId assetId from asset
     * uint256 _sellPrice  price from asset
     */
-    function sellOwnArticle(uint256 _articleId, uint256 _sellPrice) public {
+    function sellOwnAsset(uint256 _assetId, uint256 _sellPrice) public {
 
-        //retrieve article from mapping and store it
-        Article storage articleForSell = ownArticles[_articleId];
+        //retrieve asset from mapping and store it
+        Asset storage assetForSale = assetsNotForSale[_assetId];
 
         //checking if seller is locked in account
-        if (msg.sender == articleForSell.seller) {
+        if (msg.sender == assetForSale.seller) {
 
-            // a new article
-            articleCounterSell++;
+            // a new asset
+            assetCounterAssetsForSale++;
 
-            //Create new article & store this article
-            articles[articleCounterSell] = Article(
-                articleCounterSell,
-                articleForSell.seller,
+            //Create new asset & store this asset
+            assetsForSale[assetCounterAssetsForSale] = Asset(
+                assetCounterAssetsForSale,
+                assetForSale.seller,
                 address(0),
-                articleForSell.name,
-                articleForSell.serialID,
+                assetForSale.name,
+                assetForSale.serialID,
                 _sellPrice
             );
 
             //emit Event for market event ticker 
-            emit LogSellArticle(
-                articleCounterSell,
+            emit LogSellAsset(
+                assetCounterAssetsForSale,
                 msg.sender,
-                articleForSell.name,
-                articleForSell.price
+                assetForSale.name,
+                assetForSale.price
             );
 
-            //delete old article
-            delete (ownArticles[_articleId].seller);
-            delete (ownArticles[_articleId]);
+            //delete old asset
+            delete (assetsNotForSale[_assetId].seller);
+            delete (assetsNotForSale[_assetId]);
         }
     }
 
     /**
     * dev Remove asset from market back to owned Assets
-    *  uint256  _articleId articleID from asset
+    * uint256  _assetId assetID from asset
     */
     function removeFromMarket(uint256 _id) public {
-        //retrieve article from mapping and store it
-        Article storage article = articles[_id];
+        //retrieve asset from mapping and store it
+        Asset storage asset = assetsForSale[_id];
 
-        // a new article
-        articleCounter++;
+        // a new asset
+        assetCounter++;
 
-        //create & store this article
-        ownArticles[articleCounter] = Article(
-            articleCounter,
-            article.seller,
+        //create & store this asset
+        assetsNotForSale[assetCounter] = Asset(
+            assetCounter,
+            asset.seller,
             address(0),
-            article.name,
-            article.serialID,
-            article.price
+            asset.name,
+            asset.serialID,
+            asset.price
         );
 
         //emit Event for market ticker  
         emit LogOffMarket(
-            article.id,
-            article.seller,
-            article.buyer,
-            article.name,
-            article.price
+            asset.id,
+            asset.seller,
+            asset.buyer,
+            asset.name,
+            asset.price
         );
 
-        //delete old article
-        delete (articles[_id]);
+        //delete old asset
+        delete (assetsForSale[_id]);
     }
 
     /**
     * dev Buy Asset from market
-    *   uint256  _articleId articleID from asset
+    * param  uint256  _assetId assetID from asset
     */
-    function buyArticle(uint256 _id) public payable {
+    function buyAsset(uint256 _id) public payable {
 
-        // we check whether there is at least one article
-        require(articleCounterSell > 0, "There should be at least one article");
+        // we check whether there is at least one asset
+        require(assetCounterAssetsForSale > 0, "There should be at least one asset");
 
-        // we check whether the article exists
+        // we check whether the asset exists
         require(
-            _id > 0 && _id <= articleCounterSell,
-            "Article with this id does not exist"
+            _id > 0 && _id <= assetCounterAssetsForSale,
+            "Asset with this id does not exist"
         );
 
-        // we retrieve the article
-        Article storage article = articles[_id];
+        // we retrieve the asset
+        Asset storage asset = assetsForSale[_id];
 
-        // we check whether the article has not already been sold
-        require(article.buyer == address(0), "Article was already sold");
+        // we check whether the asset has not already been sold
+        require(asset.buyer == address(0), "Asset was already sold");
 
         //deleted Objects cant be bought
-        require(article.id != 0);
+        require(asset.id != 0);
 
-        // we don't allow the seller to buy his/her own article
+        // we don't allow the seller to buy his/her own asset
         require(
-            article.seller != msg.sender,
-            "Seller cannot buy his own article"
+            asset.seller != msg.sender,
+            "Seller cannot buy his own asset"
         );
 
-        // we check whether the value sent corresponds to the article price
+        // we check whether the value sent corresponds to the asset price
         require(
-            article.price == msg.value,
-            "Value provided does not match price of article"
+            asset.price == msg.value,
+            "Value provided does not match price of asset"
         );
 
-        //add Article to all the article owned by some one and not for sale
-        ownArticles[articleCounter] = article;
+        //add Asset to all the asset owned by some one and not for sale
+        assetsNotForSale[assetCounter] = asset;
 
-        // the buyer can buy the article
-        article.seller.transfer(msg.value);
+        // the buyer can buy the asset
+        asset.seller.transfer(msg.value);
 
         // keep buyer's information
-        article.buyer = msg.sender;
+        asset.buyer = msg.sender;
 
         //add to hisory
-        setTimeAndOwner(article.serialID);
+        setTimeAndOwner(asset.serialID);
 
         //selller is new owner
-        article.seller = msg.sender;
+        asset.seller = msg.sender;
 
         // trigger the event for market ticker
-        emit LogBuyArticle(
+        emit LogBuyAsset(
             _id,
-            article.seller,
-            article.buyer,
-            article.name,
-            article.price
+            asset.seller,
+            asset.buyer,
+            asset.name,
+            asset.price
         );
 
-        //create new article
-        articleCounter++;
-        ownArticles[articleCounter] = Article(
-            articleCounter,
-            article.seller,
+        //create new asset
+        //assetCounter++; !Not Needed
+        assetsNotForSale[assetCounter] = Asset(
+            assetCounter,
+            asset.seller,
             address(0),
-            article.name,
-            article.serialID,
-            article.price
+            asset.name,
+            asset.serialID,
+            asset.price
         );
 
         //delet Asset form Market
-        delete (articles[_id]);
+        delete (assetsForSale[_id]);
     }
 
-    // fetch and returns all article IDs available for sale
-    function getArticlesForSale() public view returns (uint256[] memory) {
+    // fetch and returns all asset IDs available for sale
+    function getAssetsForSale() public view returns (uint256[] memory) {
 
-        // we check whether there is at least one article
-        if (articleCounterSell == 0) {
+        // we check whether there is at least one asset
+        if (assetCounterAssetsForSale == 0) {
             return new uint256[](0);
         }
 
         // prepare output arrays
-        uint256[] memory articleIds = new uint256[](articleCounterSell);
+        uint256[] memory assetIDs = new uint256[](assetCounterAssetsForSale);
 
         //initialize var
-        uint256 numberOfArticlesForSale = 0;
+        uint256 numberOfAssetsForSale = 0;
 
-        // iterate over articles
-        for (uint256 i = 1; i <= articleCounterSell; i++) {
-            // keep only the ID for the article id is 0 when deleted so check it
-            //articels only exist if not deleted while swapping
-            //Attention! deleted articles[i].buyer == address(0) &&
-            if (articles[i].id != 0) {
-                articleIds[numberOfArticlesForSale] = articles[i].id;
-                numberOfArticlesForSale++;
+        // iterate over assetsForSale
+        for (uint256 i = 1; i <= assetCounterAssetsForSale; i++) {
+            // keep only the ID for the asset id is 0 when deleted so check it
+            //assets only exist if not deleted while swapping
+            //Attention! deleted assetsForSale[i].buyer == address(0) &&
+            if (assetsForSale[i].id != 0) {
+                assetIDs[numberOfAssetsForSale] = assetsForSale[i].id;
+                numberOfAssetsForSale++;
             }
         }
 
-        // copy the articleIds array into the smaller forSale array
-        uint256[] memory forSale = new uint256[](numberOfArticlesForSale);
-        for (uint256 j = 0; j < numberOfArticlesForSale; j++) {
-            forSale[j] = articleIds[j];
+        // copy the assetIDs array into the smaller forSale array
+        uint256[] memory forSale = new uint256[](numberOfAssetsForSale);
+        for (uint256 j = 0; j < numberOfAssetsForSale; j++) {
+            forSale[j] = assetIDs[j];
         }
         //Attention! changeed the return because not needed ?
         return forSale;

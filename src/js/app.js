@@ -23,10 +23,10 @@ App = {
         await window.ethereum.enable();
 
          //Checking for changed account event emitted by Meta Mask
-         //reload Account information and articles
+         //reload Account information and assetsForSale
         ethereum.on("accountsChanged", function (accounts) {
           App.displayAccountInfo();
-          App.reloadArticles();
+          App.reloadAssets();
         });
 
         App.displayAccountInfo();
@@ -86,7 +86,7 @@ App = {
       //connect the contract with Meta Mask instance
       App.contracts.AssetManagement.setProvider(window.web3.currentProvider);
       App.listenToEvents();
-      return App.reloadArticles();
+      return App.reloadAssets();
     });
   },
 
@@ -97,12 +97,12 @@ App = {
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
     
     //check if we already started to listen to events
-    if (App.logSellArticleEventListener == null) {
+    if (App.logsellAssetEventListener == null) {
       
-      //initialize article event listener from block 0 (range)
+      //initialize asset event listener from block 0 (range)
       //to listen to data events
-      App.logSellArticleEventListener = assetManagementInstance
-        .LogSellArticle({ fromBlock: "0" })
+      App.logsellAssetEventListener = assetManagementInstance
+        .LogSellAsset({ fromBlock: "0" })
         .on("data", (event) => {
           $("#" + event.id).remove();
           $("#events").append(
@@ -112,19 +112,19 @@ App = {
               event.returnValues._name +
               " is for sale</li>"
           );
-          App.reloadArticles();
+          App.reloadAssets();
         })
         .on("error", (error) => {
           console.error(error);
         });
     }
     //check if we already started to listen to events
-    if (App.logBuyArticleEventListener == null) {
+    if (App.logbuyAssetEventListener == null) {
 
-      //initialize article event listener from block 0 (range)
+      //initialize asset event listener from block 0 (range)
       //to listen to data events
-      App.logBuyArticleEventListener = assetManagementInstance
-        .LogBuyArticle({ fromBlock: "0" })
+      App.logbuyAssetEventListener = assetManagementInstance
+        .LogBuyAsset({ fromBlock: "0" })
         .on("data", (event) => {
           $("#" + event.id).remove();
           $("#events").append(
@@ -136,7 +136,7 @@ App = {
               event.returnValues._name +
               "</li>"
           );
-          App.reloadArticles();
+          App.reloadAssets();
         })
         .on("error", (error) => {
           console.error(error);
@@ -145,7 +145,7 @@ App = {
     //check if we already started to listen to events
     if (App.logOffMarketEventListener == null) {
 
-      //initialize article event listener from block 0 (range)
+      //initialize asset event listener from block 0 (range)
       //to listen to data events
       App.logOffMarketEventListener = assetManagementInstance
         .LogOffMarket({ fromBlock: "0" })
@@ -158,7 +158,7 @@ App = {
               event.returnValues._name +
               " isn't for sale anymore.</li>"
           );
-          App.reloadArticles();
+          App.reloadAssets();
         })
         .on("error", (error) => {
           console.error(error);
@@ -171,19 +171,19 @@ App = {
   getTransactionHistory: async (event) => {
 
     //retrieve asset id from button
-    var _articleId = $(event.target).data("id");
-    console.log(_articleId); //!NotNeeded
+    var _assetID = $(event.target).data("id");
+    console.log(_assetID); //!NotNeeded
 
     //initialize instance of contract
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
     const arraylength = await assetManagementInstance.getArrayLength(
-      _articleId
+      _assetID
     );
     console.log(arraylength.length);
     $("#transactionHistory").empty();
     for (let i = 0; i < arraylength.length; i++) {
       const test = await assetManagementInstance
-        .getTimeAndOwner(_articleId, i)
+        .getTimeAndOwner(_assetID, i)
         .then((event) => {
           const localizedDate =
             new Date(event.time * 1000).toLocaleDateString() +
@@ -205,17 +205,17 @@ App = {
 
   //!Not Needed
   getTransactionHistorySell: async (event) => {
-    var _articleId = $(event.target).data("id");
-    console.log(_articleId);
+    var _assetID = $(event.target).data("id");
+    console.log(_assetID);
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
     const arraylength = await assetManagementInstance.getArrayLength(
-      _articleId
+      _assetID
     );
     console.log(arraylength.length);
     $("#transactionHistorySell").empty();
     for (let i = 0; i < arraylength.length; i++) {
       const test = await assetManagementInstance
-        .getTimeAndOwner(_articleId, i)
+        .getTimeAndOwner(_assetID, i)
         .then((result) => {
           const localizedDate =
             new Date(result.time * 1000).toLocaleDateString() +
@@ -236,24 +236,24 @@ App = {
 
 
 
-  sellArticle: async () => {
+  sellAsset: async () => {
 
-    //retrieve article price from dialog
-    const articlePriceValue = parseFloat($("#article_price_sell").val());
+    //retrieve asset price from dialog
+    const assetPriceValue = parseFloat($("#asset_price_sell").val());
    
     //check if Number and convert it to string
-    const articlePrice = isNaN(articlePriceValue)
+    const assetPrice = isNaN(assetPriceValue)
       ? "0"
-      : articlePriceValue.toString();
+      : assetPriceValue.toString();
 
-    //retrieve article name for dialog
-    const _name = $("#article_name_sell").val();
+    //retrieve asset name for dialog
+    const _name = $("#asset_name_sell").val();
 
-    //retrieve article serial id from dialog
-    const _serialID = $("#article_description_sell").val();
+    //retrieve asset serial id from dialog
+    const _serialID = $("#asset_serialID_sell").val();
 
     //convert price into Wei
-    const _price = window.web3.utils.toWei(articlePrice, "ether");
+    const _price = window.web3.utils.toWei(assetPrice, "ether");
 
     //we check if the name is empty or there isnt a price in form
     if (_name.trim() == "" || _price === "0") {
@@ -270,7 +270,7 @@ App = {
        * @param uint256 _price asset price
        * */
       const transactionReceipt = await assetManagementInstance
-        .sellArticle(_name, _serialID, _price, {
+        .sellAsset(_name, _serialID, _price, {
           from: App.account,
           gas: 6000000,
         })
@@ -281,30 +281,30 @@ App = {
     } catch (error) {
       console.error(error);
     }
-    App.reloadArticles();
+    App.reloadAssets();
   },
 
   createAsset: async () => {
     console.log("creating"); //!Not Neded
 
-    //retrieve article price from dialog
-    const articlePriceValueCreate = parseFloat(
-      $("#article_price_create").val()
+    //retrieve asset price from dialog
+    const assetPriceValueCreate = parseFloat(
+      $("#asset_price_create").val()
     );
 
     //check if Number and convert it to string
-    const articlePriceCreate = isNaN(articlePriceValueCreate)
+    const assetPriceCreate = isNaN(assetPriceValueCreate)
       ? "0"
-      : articlePriceValueCreate.toString();
+      : assetPriceValueCreate.toString();
 
     //retrieve name from dialog
-    const _nameCreate = $("#article_name_create").val();
+    const _nameCreate = $("#asset_name_create").val();
 
     //retrieve serialID from dialog
-    const _serialIDCreate = $("#article_description_create").val();
+    const _serialIDCreate = $("#asset_serialID_create").val();
 
     //convert price to Wei
-    const _priceCreate = window.web3.utils.toWei(articlePriceCreate, "ether");
+    const _priceCreate = window.web3.utils.toWei(assetPriceCreate, "ether");
 
     //we check if the name is empty or there isnt a price in form
     if (_nameCreate.trim() == "" || _priceCreate === "0") {
@@ -328,38 +328,38 @@ App = {
           console.log("transaction hash", hash);
         });
       console.log("transaction receipt", transactionReceipt);
-      App.reloadArticles();
+      App.reloadAssets();
     } catch (error) {
       console.error(error);
     }
   },
 
-  buyArticle: async () => {
+  buyAsset: async () => {
     event.preventDefault();
 
     // retrieve the asset id, price from button
-    var _articleId = $(event.target).data("id");
+    var _assetID = $(event.target).data("id");
 
      // retrieve the asset price, price from button
-    const articlePriceValue = parseFloat($(event.target).data("value"));
+    const assetPriceValue = parseFloat($(event.target).data("value"));
 
     //check if its a number and convert it into a String
-    const articlePrice = isNaN(articlePriceValue)
+    const assetPrice = isNaN(assetPriceValue)
       ? "0"
-      : articlePriceValue.toString();
+      : assetPriceValue.toString();
 
     //Converts wei value into a ether value 
-    const _price = window.web3.utils.toWei(articlePrice, "ether");
+    const _price = window.web3.utils.toWei(assetPrice, "ether");
     
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
      
      
       /**@dev allows to buy asset
-       * @param uint256 _articleID asset itentifier
+       * @param uint256 _assetID asset itentifier
        * */ 
       const transactionReceipt = await assetManagementInstance
-        .buyArticle(_articleId, {
+        .buyAsset(_assetID, {
           from: App.account,
           value: _price,
           gas: 600000,
@@ -373,36 +373,36 @@ App = {
     }
   },
 
-  sellOwnArticle: async (event) => {
+  sellOwnAsset: async (event) => {
     event.preventDefault();
 
     //retrieve asset id from button event (onclick)
-    var _articleId = $(event.target).data("id");
+    var _assetID = $(event.target).data("id");
 
     //retrieve price from button event (onclick)
-    const articlePriceValue = parseFloat($(event.target).data("value"));
+    const assetPriceValue = parseFloat($(event.target).data("value"));
 
     //check if number and convert it to string
-    const articlePrice = isNaN(articlePriceValue)
+    const assetPrice = isNaN(assetPriceValue)
       ? "0"
-      : articlePriceValue.toString();
+      : assetPriceValue.toString();
 
     //convert price from ether to Wei
-    const _price = window.web3.utils.toWei(articlePrice, "ether");
+    const _price = window.web3.utils.toWei(assetPrice, "ether");
 
     //!Not Needed
-    console.log("sell id from object: " + _articleId + " sellprice " + _price);
+    console.log("sell id from object: " + _assetID + " sellprice " + _price);
 
     try {
       //initialize contract instance
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
 
       /**@dev allows to sell asset (available for sale)
-       * @param uint256 _articleID asset itentifier
+       * @param uint256 _assetID asset itentifier
        * @param uint _price asset price 
        * */ 
       const transactionReceipt = await assetManagementInstance
-        .sellOwnArticle(_articleId, _price, {
+        .sellOwnAsset(_assetID, _price, {
           from: App.account,
           gas: 5000000,
         })
@@ -413,24 +413,24 @@ App = {
     } catch (error) {
       console.error(error);
     }
-    App.reloadArticles();
+    App.reloadAssets();
   },
 
-  removeArticle: async () => {
+  removeAsset: async () => {
     event.preventDefault();
 
     //retrieve the asset id from event (button click)
-    var _articleId = $(event.target).data("id");
+    var _assetID = $(event.target).data("id");
 
     try {
       //intitialize contract instance
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
 
-      /**@dev allows to remove article from market (not available for sale anymore)
-       * @param uint256 _articleID asset itentifier 
+      /**@dev allows to remove asset from market (not available for sale anymore)
+       * @param uint256 _assetID asset itentifier 
        * */ 
       const transactionReceipt = await assetManagementInstance
-        .removeFromMarket(_articleId, {
+        .removeFromMarket(_assetID, {
           from: App.account,
           gas: 5000000,
         })
@@ -441,11 +441,11 @@ App = {
     } catch (error) {
       console.error(error);
     }
-    App.reloadArticles();
+    App.reloadAssets();
   },
 
 
-  reloadArticles: async () => {
+  reloadAssets: async () => {
     // avoid reentry
     if (App.loading) {
       return;
@@ -460,32 +460,34 @@ App = {
       //initialize contract instance
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       
-      //get assetIDs for articles for sale
-      const articleIds = await assetManagementInstance.getArticlesForSale();
-      console.log("IDs in ForSale Row Array: " + articleIds);
+      //get assetIDs for assetsForSale for sale
+      const assetID = await assetManagementInstance.getAssetsForSale();
+      console.log("IDs in ForSale Row Array: " + assetID);
 
-      //clear the articlesRow list
-      $("#articlesRow").empty();
+      //clear the assetsRow list
+      $("#assetsRow").empty();
+
+      //!Not Needed
       console.log(
         "Länge Aarry of Articles for Sale in reloadArticels(): " +
-          articleIds.length
+          assetID.length
       );
       
 
-      for (let i = 0; i < articleIds.length; i++) {
-        //console.log("Thats the Article i= " + i + " and aticleID "); !Not Needed
+      for (let i = 0; i < assetID.length; i++) {
+        //console.log("Thats the Asset i= " + i + " and aticleID "); !Not Needed
 
-        //retrieve article from mapping
-        const article = await assetManagementInstance.articles(articleIds[i]);
+        //retrieve asset from mapping
+        const asset = await assetManagementInstance.assetsForSale(assetID[i]);
 
         // Problem! if added   -only if artikel is not deleted at that spot !NotNeeded
-        App.displayArticle(
-          article[0],
-          article[1],
-          article[3],
-          article[4],
-          article[5],
-          article[6]
+        App.displayAsset(
+          asset[0],
+          asset[1],
+          asset[3],
+          asset[4],
+          asset[5],
+          asset[6]
         );
       }
 
@@ -499,27 +501,27 @@ App = {
       //initialize contract instance
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
 
-      //get assetIDs for articles for owned
-      const articleIds2 = await assetManagementInstance.getOwnedAssets();
+      //get assetIDs for assetsForSale for owned
+      const assetIDs2 = await assetManagementInstance.getOwnedAssets();
 
       //!Not Needed
-      console.log("IDs in Owned Row Array: " + articleIds2);
+      console.log("IDs in Owned Row Array: " + assetIDs2);
 
-      //clear the articlesRow list
-      $("#articlesRow2").empty();
-      for (let i = 0; i < articleIds2.length; i++) {
+      //clear the assetsRow list
+      $("#assetsRow2").empty();
+      for (let i = 0; i < assetIDs2.length; i++) {
 
-        //retrieve article from mapping
-        const article = await assetManagementInstance.ownArticles(
-          articleIds2[i]
+        //retrieve asset from mapping
+        const asset = await assetManagementInstance.assetsNotForSale(
+          assetIDs2[i]
         );
-        App.displayOwnedArticle(
-          article[0],
-          article[1],
-          article[3],
-          article[4],
-          article[5],
-          article[6]
+        App.displayOwnedAsset(
+          asset[0],
+          asset[1],
+          asset[3],
+          asset[4],
+          asset[5],
+          asset[6]
         );
       }
       App.loading = false;
@@ -531,82 +533,82 @@ App = {
 
 
   /**
-    * Display articles on the market
+    * Display assetsForSale on the market
     * param  {uint256}  id [asset id]
     * param  {address}  seller [asset seller/owner]
     * param  {string}   name [asset name]
     * param  {uint256}  serialID [asset serialIdentifier]
     * param  {uint256}  price [asset price]
     */
-  displayArticle: (id, seller, name, serialID, price) => {
+  displayAsset: (id, seller, name, serialID, price) => {
     
-    // Retrieve the article placeholder
-    const articlesRow = $("#articlesRow");
+    // Retrieve the asset placeholder
+    const assetsRow = $("#assetsRow");
     
     //Converts wei value into a ether value
     const etherPrice = web3.utils.fromWei(price, "ether");
 
-    // Retrieve and fill the article template
-    var articleTemplateSell = $("#articleTemplateSell");
-    articleTemplateSell.find(".article-name-sell").text(name);
-    articleTemplateSell.find(".article-description-sell").text(serialID);
-    articleTemplateSell.find(".article-price-sell").text(etherPrice + " ETH");
-    articleTemplateSell.find(".btn-buy").attr("data-id", id);
-    articleTemplateSell.find(".btn-transactionHistory");
+    // Retrieve and fill the asset template
+    var assetTemplateSell = $("#assetTemplateSell");
+    assetTemplateSell.find(".asset-name-sell").text(name);
+    assetTemplateSell.find(".asset-serialID-sell").text(serialID);
+    assetTemplateSell.find(".asset-price-sell").text(etherPrice + " ETH");
+    assetTemplateSell.find(".btn-buy").attr("data-id", id);
+    assetTemplateSell.find(".btn-transactionHistory");
     //.attr("data-id", uniqueId); !Not needed
-    articleTemplateSell.find(".btn-transactionHistorySell");
+    assetTemplateSell.find(".btn-transactionHistorySell");
     //.attr("data-id", uniqueId); !Not needed
-    articleTemplateSell.find(".btn-remove").attr("data-id", id);
-    articleTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
+    assetTemplateSell.find(".btn-remove").attr("data-id", id);
+    assetTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
 
     //check if logged in account is owner, then change the UI
     if (seller == App.account) {
-      articleTemplateSell.find(".article-seller-sell").text("You");
-      articleTemplateSell.find(".btn-buy").hide();
-      articleTemplateSell.find(".btn-remove").show();
+      assetTemplateSell.find(".asset-seller-sell").text("You");
+      assetTemplateSell.find(".btn-buy").hide();
+      assetTemplateSell.find(".btn-remove").show();
     } else {
-      articleTemplateSell
-        .find(".article-seller-sell")
+      assetTemplateSell
+        .find(".asset-seller-sell")
         .text(seller.substring(0, 15) + "...");
-      articleTemplateSell.find(".btn-buy").show();
-      articleTemplateSell.find(".btn-remove").hide();
-      //articleTemplateSell.find("remove-asset-market").hide(); !NotNeeded
+      assetTemplateSell.find(".btn-buy").show();
+      assetTemplateSell.find(".btn-remove").hide();
+      //assetTemplateSell.find("remove-asset-market").hide(); !NotNeeded
     }
 
-    // add this new article
-    articlesRow.append(articleTemplateSell.html());
+    // add this new asset
+    assetsRow.append(assetTemplateSell.html());
   },
 
 
 
   /**
-    * Display articles from the market
+    * Display assetsForSale from the market
     * param  {uint256}  id [asset id]
     * param  {address}  seller [asset seller/owner]
     * param  {string}   name [asset name]
     * param  {uint256}  serialID [asset serialIdentifier]
     * param  {uint256}  price [asset price]
     */
-  displayOwnedArticle: (id, seller, name, serialID, price) => {
+  displayOwnedAsset: (id, seller, name, serialID, price) => {
 
-    // Retrieve the article placeholder
-    const articlesRow2 = $("#articlesRow2");
+    // Retrieve the asset placeholder
+    const assetsRow2 = $("#assetsRow2");
 
     //Converts wei value into a ether value
     const etherPrice = web3.utils.fromWei(price, "ether");
 
-    // Retrieve and fill the article template
-    var articleTemplateCreate = $("#articleTemplateCreate");
-    articleTemplateCreate.find(".article-name-create").text(name);
-    articleTemplateCreate.find(".article-description-create").text(serialID);
-    articleTemplateCreate
-      .find(".article-price-create")
+    // Retrieve and fill the asset template
+    var assetTemplateCreate = $("#assetTemplateCreate");
+    assetTemplateCreate.find(".asset-name-create").text(name);
+    assetTemplateCreate.find(".asset-serialID-create").text(serialID);
+    assetTemplateCreate
+      .find(".asset-price-create")
       .text(etherPrice + " ETH");
-    articleTemplateCreate.find(".btn-buy").attr("data-id", id);
-    articleTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
-    articleTemplateCreate.find(".btn-transactionHistory");
+    assetTemplateCreate.find(".btn-buy").attr("data-id", id);
+    assetTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
+    assetTemplateCreate.find(".btn-transactionHistory");
     //.attr("data-id", uniqueId);
-    articleTemplateCreate.find(".btn-transactionHistorySell");
+    assetTemplateCreate.find(".btn-transactionHistorySell");
     //.attr("data-id", uniqueId);
     console.log(
       "ID of: " +
@@ -620,10 +622,10 @@ App = {
 
     // checking if loggend in Account is owner, change UI
     if (seller == App.account) {
-      articleTemplateCreate.find(".article-seller-create").text("You");
-      articleTemplateCreate.find(".btn-buy");
-      // add this new article
-      articlesRow2.append(articleTemplateCreate.html());
+      assetTemplateCreate.find(".asset-seller-create").text("You");
+      assetTemplateCreate.find(".btn-buy");
+      // add this new asset
+      assetsRow2.append(assetTemplateCreate.html());
     }
   },
 };

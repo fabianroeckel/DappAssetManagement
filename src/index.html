@@ -102,11 +102,11 @@
       </div>
 
       <div
-        id="articlesRow"
+        id="assetsRow"
         class="row align-items-start"
         style="min-height: 400px"
       >
-        <!-- ARTICLES TO SELL LOAD HERE -->
+        <!-- assetS TO SELL LOAD HERE -->
       </div>
 
       <div class="row justify-content-between my-3">
@@ -143,11 +143,11 @@
         </div>
       </div>
 
-      <div id="articlesRow2" class="row">
-        <!-- OWN ARTICLES LOAD HERE -->
+      <div id="assetsRow2" class="row">
+        <!-- OWN assetS LOAD HERE -->
       </div>
 
-      <div id="articleTemplateSell" style="display: none">
+      <div id="assetTemplateSell" style="display: none">
         <div class="col-12">
           <div
             class="item-container row mx-0 align-items-center my-2 p-2 border"
@@ -156,16 +156,16 @@
               <img src="images/anlagegut.png" alt="" />
             </div>
             <div class="col-2">
-              <p class="article-name-sell"></p>
+              <p class="asset-name-sell"></p>
             </div>
             <div class="col-2">
-              <p class="article-description-sell"></p>
+              <p class="asset-serialID-sell"></p>
             </div>
             <div class="col-1">
-              <p class="article-price-sell"></p>
+              <p class="asset-price-sell"></p>
             </div>
             <div class="col-3">
-              <p class="article-seller-sell"></p>
+              <p class="asset-seller-sell"></p>
             </div>
             <div class="col-3">
               <div class="row">
@@ -173,14 +173,14 @@
                   <button
                     type="button"
                     class="btn btn-primary btn-success btn-buy w-100 text-center"
-                    onclick="App.buyArticle(event); return false;"
+                    onclick="App.buyAsset(event); return false;"
                   >
                     Buy
                   </button>
                   <button
                     type="button"
                     class="btn btn-danger btn-remove w-100 text-center"
-                    onclick="App.removeArticle(event)"
+                    onclick="App.removeAsset(event)"
                   >
                     Remove
                   </button>
@@ -207,8 +207,8 @@
         </div>
       </div>
 
-      <!-- added id / remove Articles owned by the user -->
-      <div id="articleTemplateCreate" style="display: none">
+      <!-- added id / remove assets owned by the user -->
+      <div id="assetTemplateCreate" style="display: none">
         <div class="col-12">
           <div
             class="item-container row mx-0 align-items-center my-2 p-2 border"
@@ -217,16 +217,16 @@
               <img src="images/anlagegut.png" alt="" />
             </div>
             <div class="col-2">
-              <p class="article-name-create"></p>
+              <p class="asset-name-create"></p>
             </div>
             <div class="col-2">
-              <p class="article-description-create"></p>
+              <p class="asset-serialID-create"></p>
             </div>
             <div class="col-1">
-              <p class="article-price-create"></p>
+              <p class="asset-price-create"></p>
             </div>
             <div class="col-3">
-              <p class="article-seller-create"></p>
+              <p class="asset-seller-create"></p>
             </div>
             <div class="col-3">
               <div class="row">
@@ -234,7 +234,7 @@
                   <button
                     type="button"
                     class="btn btn-success btn-buy w-100"
-                    onclick="App.sellOwnArticle(event); return false;"
+                    onclick="App.sellOwnAsset(event); return false;"
                   >
                     Sell
                   </button>
@@ -261,7 +261,7 @@
         </div>
       </div>
 
-      <!-- modal form for creating an article -->
+      <!-- modal form for creating an asset -->
       <div class="modal fade" id="createAsset" role="dialog">
         <div class="modal-dialog">
           <!-- Modal content for creating -->
@@ -277,12 +277,12 @@
                 <div class="col-lg-12">
                   <form>
                     <div class="form-group">
-                      <label for="article_name">Article name</label>
+                      <label for="asset_name">Asset name</label>
                       <input
                       type="text"
                       class="form-control"
-                      id="article_name_create"
-                      placeholder="Enter the name of your article"
+                      id="asset_name_create"
+                      placeholder="Enter the name of your asset"
                       />
                     </div>
                     <div class="form-group">
@@ -290,20 +290,20 @@
                       <input
                       type="number"
                       class="form-control"
-                      id="article_price_create"
+                      id="asset_price_create"
                       placeholder="1"
                       pattern="[0-9]+([\.,][0-9]+)?"
                       step="0.01"
                       />
                     </div>
                     <div class="form-group">
-                      <label for="description"
+                      <label for="serialID"
                         >Serial Number Identification</label
                       >
                       <textarea
                         type="text"
                         class="form-control"
-                        id="article_description_create"
+                        id="asset_serialID_create"
                         placeholder="Enter Identification Number"
                         maxlength="255"
                       ></textarea>
@@ -329,7 +329,7 @@
         </div>
       </div>
 
-      <!-- Modal form to sell an article -->
+      <!-- Modal form to sell an asset -->
       <div class="modal fade" id="sellingModal" role="dialog">
         <div class="modal-dialog">
           <!-- Modal content-->
@@ -345,12 +345,12 @@
                 <div class="col-lg-12">
                   <form>
                     <div class="form-group">
-                      <label for="article_name_sell">Asset name</label>
+                      <label for="asset_name_sell">Asset name</label>
                       <input
                         type="text"
                         class="form-control"
-                        id="article_name_sell"
-                        placeholder="Enter the name of your article"
+                        id="asset_name_sell"
+                        placeholder="Enter the name of your asset"
                       />
                     </div>
                     <div class="form-group">
@@ -358,18 +358,18 @@
                       <input
                         type="number"
                         class="form-control"
-                        id="article_price_sell"
+                        id="asset_price_sell"
                         placeholder="1"
                         pattern="[0-9]+([\.,][0-9]+)?"
                         step="0.01"
                       />
                     </div>
                     <div class="form-group">
-                      <label for="description">Identification Number</label>
+                      <label for="serialID">Identification Number</label>
                       <textarea
                         type="number"
                         class="form-control"
-                        id="article_description_sell"
+                        id="asset_serialID_sell"
                         placeholder="Enter Identification Number"
                         maxlength="25"
                       ></textarea>
@@ -383,7 +383,7 @@
                 type="button"
                 class="btn btn-primary btn-success"
                 data-dismiss="modal"
-                onclick="App.sellArticle(); return false;"
+                onclick="App.sellAsset(); return false;"
               >
                 Sell
               </button>
