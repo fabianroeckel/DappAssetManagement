@@ -146,19 +146,21 @@ contract AssetManagement {
             !serialIDVerification[_serialID],
             "serialId is allready taken and cant be claimed"
         );
-        setTimeAndOwner(_serialID);
-        // a new article
-        articleCounterSell++;
-
-        // store this article
-        articles[articleCounterSell] = Article(
-            articleCounterSell,
-            msg.sender,
-            address(0),
-            _name,
-            _serialID,
-            _price
-        );
+        if (!serialIDVerification[_serialID]) {
+            setTimeAndOwner(_serialID);
+            serialIDVerification[_serialID] = true;
+            // a new article
+            articleCounterSell++;
+            // store this article
+            articles[articleCounterSell] = Article(
+                articleCounterSell,
+                msg.sender,
+                address(0),
+                _name,
+                _serialID,
+                _price
+            );
+        }
         // trigger the event
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
@@ -319,7 +321,6 @@ contract AssetManagement {
 
         //delet Asset form Market
         delete (articles[_id]);
-        delete (articles[_id].seller);
     }
 
     //Problem! number is wrong   -Articles can change owner
