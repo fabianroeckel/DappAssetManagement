@@ -27,26 +27,39 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-light bg-light">
-      <a class="navbar-brand" href="#">
+    <nav class="navbar navbar-light bg-light py-3">
+      <div class="row vw-100 justify-content-between">
         <div class="col-auto">
-          <img
-            src="images/cryptocurrency.png"
-            width="30"
-            height="30"
-            class="d-inline-block align-top"
-            alt=""
-          />
-          Dapp Asset Management
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <img
+                src="images/cryptocurrency.png"
+                width="30"
+                height="30"
+                class="d-inline-block align-top"
+                alt=""
+              />
+            </div>
+            <div class="col-auto pl-0">
+              <h4 class="m-0">Dapp Asset Management</h3>
+            </div>
+          </div>
         </div>
-      </a>
-      <div class="row justify-content-between mt-3">
         <div class="col-auto">
-          <img src="images/cryptocurrency.png" class="rounded float-left" />
-          <p id="accountBalance" class="welcome pull-left"></p>
-        </div>
-        <div class="col-auto">
-          <p id="account" class="welcome pull-right"></p>
+          <div class="row align-items-center">
+            <div class="col-auto pr-0">
+              <img src="images/dollar.png" class="rounded float-left" />
+            </div>
+            <div class="col-auto pl-0">
+              <p id="accountBalance" class="welcome pull-left"></p>
+            </div>
+            <div class="col-auto pr-0">
+              <img src="images/user.png" class="rounded float-left" />
+            </div>
+            <div class="col-auto pl-0">
+              <p id="account" class="welcome pull-right"></p>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
@@ -82,7 +95,7 @@
         </div>
       </div>
 
-      <div class="row criteria">
+      <div class="row criteria border-bottom">
         <div class="col-1"></div>
         <div class="col-2">
           <strong>Name <i class="arrow down"></i></strong>
@@ -91,7 +104,7 @@
           <strong>Serial-ID <i class="arrow down"></i></strong>
         </div>
         <div class="col-1">
-          <strong>Price<i class="arrow down"></i></strong>
+          <strong>Value <i class="arrow down"></i></strong>
         </div>
         <div class="col-3">
           <strong>Sold by <i class="arrow down"></i></strong>
@@ -104,7 +117,7 @@
       <div
         id="assetsRow"
         class="row align-items-start"
-        style="min-height: 400px"
+        style="min-height: 300px"
       >
         <!-- assetS TO SELL LOAD HERE -->
       </div>
@@ -124,7 +137,7 @@
         </div>
       </div>
 
-      <div class="row criteria my-2">
+      <div class="row criteria my-2 border-bottom">
         <div class="col-1"></div>
         <div class="col-2">
           <strong>Name: <i class="arrow down"></i></strong>
@@ -133,7 +146,7 @@
           <strong>Serial-ID <i class="arrow down"></i></strong>
         </div>
         <div class="col-1">
-          <strong>Value<i class="arrow down"></i></strong>
+          <strong>Value <i class="arrow down"></i></strong>
         </div>
         <div class="col-3">
           <strong>Owner<i class="arrow down"></i> </strong>
@@ -406,8 +419,10 @@
       id="sticky-footer"
       class="navbar fixed-bottom py-4 bg-dark text-white-50"
     >
-      <div class="container text-center text-justify">
-        <small>Fabian Röckel & Leonard Kimmling &copy; Asset Management</small>
+      <div class="row vw-100 justify-content-center">
+        <div class="col-auto">
+          <small>Fabian Röckel & Leonard Kimmling &copy; Asset Management</small>
+        </div>
       </div>
     </div>
   </body>

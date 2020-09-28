@@ -1,7 +1,5 @@
 body {
-    padding-top: 40px;
-    padding-bottom: 120px;
-    height: 100%;
+    min-height: 100vh;
 }
 
 p {
