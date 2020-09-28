@@ -326,6 +326,18 @@ contract AssetManagement {
         delete (assetsForSale[_id]);
     }
 
+        
+    // fetch the number of articles in the contract
+    function getNumberOfAssets() public view returns (uint256) {
+        return assetCounter;
+    }
+
+
+    // fetch the number of articles in the contract
+    function getNumberOfSellingAssets() public view returns (uint256) {
+        return assetCounterAssetsForSale;
+    }
+
     // fetch and returns all asset IDs available for sale
     function getAssetsForSale() public view returns (uint256[] memory) {
 

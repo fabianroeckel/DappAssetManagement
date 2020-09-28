@@ -6,12 +6,12 @@ contract("AssetManagement", function (accounts) {
   let assetManagementInstance;
   const seller = accounts[1];
   const buyer = accounts[2];
-  const articleName1 = "article 1";
-  const articleDescription1 = "Description for article 1";
-  const articlePrice1 = web3.utils.toBN(10);
-  const articleName2 = "article 2";
-  const articleDescription2 = "Description for article 2";
-  const articlePrice2 = web3.utils.toBN(20);
+  const assetName1 = "asset 1";
+  const assetSerialID1 = 1;
+  const assetPrice1 = web3.utils.toBN(10);
+  const assetName2 = "asset 2";
+  const assetSerialID2 = 2;
+  const assetPrice2 = web3.utils.toBN(20);
   let sellerBalanceBeforeBuy, sellerBalanceAfterBuy;
   let buyerBalanceBeforeBuy, buyerBalanceAfterBuy;
 
@@ -21,22 +21,22 @@ contract("AssetManagement", function (accounts) {
 
   // Test case: check initial values
   it("should be initialized with empty values", async () => {
-    const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
-    assert.equal(numberOfArticles, 0, "number of articles must be zero");
-    const articlesForSale = await assetManagementInstance.getArticlesForSale();
+    const numberOfassets = await assetManagementInstance.getNumberOfSellingAssets();
+    assert.equal(numberOfassets, 0, "number of assets must be zero");
+    const assetsForSale = await assetManagementInstance.getAssetsForSale();
     assert.equal(
-      articlesForSale.length,
+      assetsForSale.length,
       0,
-      "articles for sale should be empty"
+      "assets for sale should be empty"
     );
   });
 
-  // Test case: sell a first article
-  it("should let us sell a first article", async () => {
-    const receipt = await assetManagementInstance.sellArticle(
-      articleName1,
-      articleDescription1,
-      web3.utils.toWei(articlePrice1, "ether"),
+  // Test case: sell a first asset
+  it("should let us sell a first asset", async () => {
+    const receipt = await assetManagementInstance.sellAsset(
+      assetName1,
+      assetSerialID1,
+      web3.utils.toWei(assetPrice1, "ether"),
       {
         from: seller,
       }
@@ -45,8 +45,8 @@ contract("AssetManagement", function (accounts) {
     assert.equal(receipt.logs.length, 1, "should have received one event");
     assert.equal(
       receipt.logs[0].event,
-      "LogSellArticle",
-      "event name should be LogSellArticle"
+      "LogSellAsset",
+      "event name should be LogSellAsset"
     );
     assert.equal(receipt.logs[0].args._id.toNumber(), 1, "id must be 1");
     assert.equal(
@@ -56,54 +56,51 @@ contract("AssetManagement", function (accounts) {
     );
     assert.equal(
       receipt.logs[0].args._name,
-      articleName1,
-      "article name must be " + articleName1
+      assetName1,
+      "asset name must be " + assetName1
     );
     assert.equal(
       receipt.logs[0].args._price.toString(),
-      web3.utils.toWei(articlePrice1, "ether").toString(),
-      "article price must be " + web3.utils.toWei(articlePrice1, "ether")
+      web3.utils.toWei(assetPrice1, "ether").toString(),
+      "asset price must be " + web3.utils.toWei(assetPrice1, "ether")
     );
 
-    const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
-    assert.equal(numberOfArticles, 1, "number of articles must be one");
-
-    const articlesForSale = await assetManagementInstance.getArticlesForSale();
+    const assetsForSale = await assetManagementInstance.getAssetsForSale();
     assert.equal(
-      articlesForSale.length,
+      assetsForSale.length,
       1,
-      "there must now be 1 article for sale"
+      "there must now be 1 asset for sale"
     );
-    const articleId = articlesForSale[0].toNumber();
-    assert.equal(articleId, 1, "article id must be 1");
+    const assetId = assetsForSale[0].toNumber();
+    assert.equal(assetId, 1, "asset id must be 1");
 
-    const article = await assetManagementInstance.articles(articleId);
-    assert.equal(article[0].toNumber(), 1, "article id must be 1");
-    assert.equal(article[1], seller, "seller must be " + seller);
-    assert.equal(article[2], 0x0, "buyer must be empty");
+    const asset = await assetManagementInstance.assetsForSale(assetId);
+    assert.equal(asset[0].toNumber(), 1, "asset id must be 1");
+    assert.equal(asset[1], seller, "seller must be " + seller);
+    assert.equal(asset[2], 0x0, "buyer must be empty");
     assert.equal(
-      article[3],
-      articleName1,
-      "article name must be " + articleName1
+      asset[3],
+      assetName1,
+      "asset name must be " + assetName1
     );
     assert.equal(
-      article[4],
-      articleDescription1,
-      "article description must be " + articleDescription1
+      asset[4],
+      assetSerialID1,
+      "asset description must be " + assetSerialID1
     );
     assert.equal(
-      article[5].toString(),
-      web3.utils.toWei(articlePrice1, "ether").toString(),
-      "article price must be " + web3.utils.toWei(articlePrice1, "ether")
+      asset[5].toString(),
+      web3.utils.toWei(assetPrice1, "ether").toString(),
+      "asset price must be " + web3.utils.toWei(assetPrice1, "ether")
     );
   });
 
-  // Test case: sell a second article
-  it("should let us sell a second article", async () => {
-    const receipt = await assetManagementInstance.sellArticle(
-      articleName2,
-      articleDescription2,
-      web3.utils.toWei(articlePrice2, "ether"),
+  // Test case: sell a second asset
+  it("should let us sell a second asset", async () => {
+    const receipt = await assetManagementInstance.sellAsset(
+      assetName2,
+      assetSerialID2,
+      web3.utils.toWei(assetPrice2, "ether"),
       {
         from: seller,
       }
@@ -115,8 +112,8 @@ contract("AssetManagement", function (accounts) {
     );
     assert.equal(
       receipt.logs[0].event,
-      "LogSellArticle",
-      "event should be LogSellArticle"
+      "LogSellAsset",
+      "event should be LogSellAsset"
     );
     assert.equal(receipt.logs[0].args._id.toNumber(), 2, "id must be 2");
     assert.equal(
@@ -126,51 +123,48 @@ contract("AssetManagement", function (accounts) {
     );
     assert.equal(
       receipt.logs[0].args._name,
-      articleName2,
-      "event article name must be " + articleName2
+      assetName2,
+      "event asset name must be " + assetName2
     );
     assert.equal(
       receipt.logs[0].args._price.toString(),
-      web3.utils.toWei(articlePrice2, "ether").toString(),
-      "event article price must be " + web3.utils.toWei(articlePrice2, "ether")
+      web3.utils.toWei(assetPrice2, "ether").toString(),
+      "event asset price must be " + web3.utils.toWei(assetPrice2, "ether")
     );
 
-    const numberOfArticles = await assetManagementInstance.getNumberOfSellingArticles();
-    assert.equal(numberOfArticles, 2, "number of articles must be two");
-
-    const articlesForSale = await assetManagementInstance.getArticlesForSale();
+    const assetsForSale = await assetManagementInstance.getAssetsForSale();
     assert.equal(
-      articlesForSale.length,
+      assetsForSale.length,
       2,
-      "there must now be 2 articles for sale"
+      "there must now be 2 assets for sale"
     );
-    const articleId = articlesForSale[1].toNumber();
-    assert.equal(articleId, 2, "article id must be 2");
+    const assetId = assetsForSale[1].toNumber();
+    assert.equal(assetId, 2, "asset id must be 2");
 
-    const article = await assetManagementInstance.articles(articleId);
-    assert.equal(article[0].toNumber(), 2, "article id must be 2");
-    assert.equal(article[1], seller, "seller must be " + seller);
-    assert.equal(article[2], 0x0, "buyer must be empty");
+    const asset = await assetManagementInstance.assetsForSale(assetId);
+    assert.equal(asset[0].toNumber(), 2, "asset id must be 2");
+    assert.equal(asset[1], seller, "seller must be " + seller);
+    assert.equal(asset[2], 0x0, "buyer must be empty");
     assert.equal(
-      article[3],
-      articleName2,
-      "article name must be " + articleName2
+      asset[3],
+      assetName2,
+      "asset name must be " + assetName2
     );
     assert.equal(
-      article[4],
-      articleDescription2,
-      "article description must be " + articleDescription2
+      asset[4],
+      assetSerialID2,
+      "asset description must be " + assetSerialID2
     );
     assert.equal(
-      article[5].toString(),
-      web3.utils.toWei(articlePrice2, "ether").toString(),
-      "article price must be " + web3.utils.toWei(articlePrice2, "ether")
+      asset[5].toString(),
+      web3.utils.toWei(assetPrice2, "ether").toString(),
+      "asset price must be " + web3.utils.toWei(assetPrice2, "ether")
     );
   });
 
-  // Test case: buy the first article
-  it("should let us buy the first article", async () => {
-    const articleId = 1;
+  // Test case: buy the first asset
+  it("should let us buy the first asset", async () => {
+    const assetId = 1;
 
     // record balances of seller and buyer before the buy
     sellerBalanceBeforeBuy = parseFloat(
@@ -180,9 +174,9 @@ contract("AssetManagement", function (accounts) {
       web3.utils.fromWei(await web3.eth.getBalance(buyer), "ether")
     );
 
-    const receipt = await assetManagementInstance.buyArticle(articleId, {
+    const receipt = await assetManagementInstance.buyAsset(assetId, {
       from: buyer,
-      value: web3.utils.toWei(articlePrice1, "ether"),
+      value: web3.utils.toWei(assetPrice1, "ether"),
     });
 
     assert.equal(
@@ -192,18 +186,13 @@ contract("AssetManagement", function (accounts) {
     );
     assert.equal(
       receipt.logs[0].event,
-      "LogBuyArticle",
-      "event should be LogBuyArticle"
+      "LogBuyAsset",
+      "event should be LogBuyAsset"
     );
     assert.equal(
       receipt.logs[0].args._id.toNumber(),
-      articleId,
-      "articleId must be " + articleId
-    );
-    assert.equal(
-      receipt.logs[0].args._seller,
-      seller,
-      "event seller must be " + seller
+      assetId,
+      "assetId must be " + assetId
     );
     assert.equal(
       receipt.logs[0].args._buyer,
@@ -212,13 +201,13 @@ contract("AssetManagement", function (accounts) {
     );
     assert.equal(
       receipt.logs[0].args._name,
-      articleName1,
-      "event article name must be " + articleName1
+      assetName1,
+      "event asset name must be " + assetName1
     );
     assert.equal(
       receipt.logs[0].args._price.toString(),
-      web3.utils.toWei(articlePrice1, "ether").toString(),
-      "event article price must be " + web3.utils.toWei(articlePrice1, "ether")
+      web3.utils.toWei(assetPrice1, "ether").toString(),
+      "event asset price must be " + web3.utils.toWei(assetPrice1, "ether")
     );
 
     // record balances of buyer and seller after the buy
@@ -232,41 +221,19 @@ contract("AssetManagement", function (accounts) {
     //check the effect of buy on balances of buyer and seller, accounting for gas
     assert(
       sellerBalanceAfterBuy ==
-        sellerBalanceBeforeBuy + articlePrice1.toNumber(),
-      "seller should have earned " + articlePrice1 + " ETH"
+        sellerBalanceBeforeBuy + assetPrice1.toNumber(),
+      "seller should have earned " + assetPrice1 + " ETH"
     );
     assert(
-      buyerBalanceAfterBuy <= buyerBalanceBeforeBuy - articlePrice1.toNumber(),
-      "buyer should have spent " + articlePrice1 + " ETH"
+      buyerBalanceAfterBuy <= buyerBalanceBeforeBuy - assetPrice1.toNumber(),
+      "buyer should have spent " + assetPrice1 + " ETH"
     );
-
-    const article = await assetManagementInstance.articles(articleId);
-
-    assert.equal(article[0].toNumber(), 1, "article id must be 1");
-    assert.equal(article[1], seller, "seller must be " + seller);
-    assert.equal(article[2], buyer, "buyer must be " + buyer);
-    assert.equal(
-      article[3],
-      articleName1,
-      "article name must be " + articleName1
-    );
-    assert.equal(
-      article[4],
-      articleDescription1,
-      "article description must be " + articleDescription1
-    );
-    assert.equal(
-      article[5].toString(),
-      web3.utils.toWei(articlePrice1, "ether").toString(),
-      "article price must be " + web3.utils.toWei(articlePrice1, "ether")
-    );
-
-    const articlesForSale = await assetManagementInstance.getArticlesForSale();
+    const assetsForSale = await assetManagementInstance.getAssetsForSale();
 
     assert(
-      articlesForSale.length,
+      assetsForSale.length,
       1,
-      "there should now be only one article left for sale"
+      "there should now be only one asset left for sale"
     );
   });
 });

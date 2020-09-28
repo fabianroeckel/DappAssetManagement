@@ -53,6 +53,7 @@ App = {
     }
   },
 
+
   /**
    * @dev Allows the display account balance and address.
    */
@@ -284,6 +285,7 @@ App = {
     App.reloadAssets();
   },
 
+
   createAsset: async () => {
     console.log("creating"); //!Not Neded
 
@@ -333,6 +335,7 @@ App = {
       console.error(error);
     }
   },
+
 
   buyAsset: async () => {
     event.preventDefault();
@@ -416,6 +419,7 @@ App = {
     App.reloadAssets();
   },
 
+  
   removeAsset: async () => {
     event.preventDefault();
 
