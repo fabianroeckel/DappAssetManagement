@@ -240,13 +240,18 @@ App = {
   buyArticle: async () => {
     event.preventDefault();
 
-    // reich htrieve the article price
+    // retrieve the article id, price from button
     var _articleId = $(event.target).data("id");
+
+     // retrieve the article price, price from button
     const articlePriceValue = parseFloat($(event.target).data("value"));
     const articlePrice = isNaN(articlePriceValue)
       ? "0"
       : articlePriceValue.toString();
+
+    //Converts wei value into a ether value 
     const _price = window.web3.utils.toWei(articlePrice, "ether");
+    
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
       const transactionReceipt = await assetManagementInstance
@@ -292,6 +297,8 @@ App = {
 
   removeArticle: async () => {
     event.preventDefault();
+
+    //retrieve the asset id from event (button click)
     var _articleId = $(event.target).data("id");
 
     try {
@@ -309,6 +316,7 @@ App = {
     }
     App.reloadArticles();
   },
+
 
   reloadArticles: async () => {
     // avoid reentry
@@ -375,9 +383,21 @@ App = {
     }
   },
 
+
+  /**
+    * Display articles on the market
+    * param  {uint256}  id [asset id]
+    * param  {address}  seller [asset seller/owner]
+    * param  {string}   name [asset name]
+    * param  {uint256}  serialID [asset serialIdentifier]
+    * param  {uint256}  price [asset price]
+    */
   displayArticle: (id, seller, name, serialID, price) => {
+    
     // Retrieve the article placeholder
     const articlesRow = $("#articlesRow");
+    
+    //Converts wei value into a ether value
     const etherPrice = web3.utils.fromWei(price, "ether");
 
     // Retrieve and fill the article template
@@ -393,7 +413,7 @@ App = {
     articleTemplateSell.find(".btn-remove").attr("data-id", id);
     articleTemplateSell.find(".btn-buy").attr("data-value", etherPrice);
 
-    // seller?
+    //check if logged in account is owner, then change the UI
     if (seller == App.account) {
       articleTemplateSell.find(".article-seller-sell").text("You");
       articleTemplateSell.find(".btn-buy").hide();
@@ -411,11 +431,22 @@ App = {
     articlesRow.append(articleTemplateSell.html());
   },
 
-  displayOwnedArticle: (id, seller, name, serialID, price, uniqueId) => {
-    // Retrieve the article placeholder
+  /**
+    * Display articles from the market
+    * param  {uint256}  id [asset id]
+    * param  {address}  seller [asset seller/owner]
+    * param  {string}   name [asset name]
+    * param  {uint256}  serialID [asset serialIdentifier]
+    * param  {uint256}  price [asset price]
+    */
+  displayOwnedArticle: (id, seller, name, serialID, price) => {
 
+    // Retrieve the article placeholder
     const articlesRow2 = $("#articlesRow2");
+
+    //Converts wei value into a ether value
     const etherPrice = web3.utils.fromWei(price, "ether");
+
     // Retrieve and fill the article template
     var articleTemplateCreate = $("#articleTemplateCreate");
     articleTemplateCreate.find(".article-name-create").text(name);
@@ -439,7 +470,7 @@ App = {
         " line steht am Rand 320 "
     );
 
-    // seller?
+    // checking if loggend in Account is owner, change UI
     if (seller == App.account) {
       articleTemplateCreate.find(".article-seller-create").text("You");
       articleTemplateCreate.find(".btn-buy");

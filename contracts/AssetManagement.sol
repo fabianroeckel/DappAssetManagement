@@ -16,10 +16,10 @@ contract AssetManagement {
     uint256 articleCounter;
     uint256 articleCounterSell;
 
-    //Marktplatz
+    //All articles on the market (onMarket)
     mapping(uint256 => Article) public articles;
 
-    //All articles !not! on the market
+    //All articles !not! on the market (offMarket)
     mapping(uint256 => Article) public ownArticles;
 
     mapping(uint256 => bool) private serialIDVerification;
@@ -54,6 +54,8 @@ contract AssetManagement {
 
     //-    -   -   -   -   -   -   -      ^       ^      ^      -   -   -   History
     // Events
+
+    // Event: new article is now for sale
     event LogSellArticle(
         uint256 indexed _id,
         address indexed _seller,
@@ -61,6 +63,7 @@ contract AssetManagement {
         uint256 _price
     );
 
+    // Event: article was bought 
     event LogBuyArticle(
         uint256 indexed _id,
         address indexed _seller,
@@ -69,6 +72,7 @@ contract AssetManagement {
         uint256 _price
     );
 
+    // Event: article was removed from market 
     event LogOffMarket(
         uint256 indexed _id,
         address indexed _seller,
@@ -77,7 +81,12 @@ contract AssetManagement {
         uint256 _price
     );
 
-    //create new Asset for own vault
+    /**
+    * Create new Asset, if serialID isn't taken
+    * param  {String}  _name [name of the asset]
+    * param  {uint256} _serialID [serial id of the asset]
+    * param  {uint256} _price [price of the asset]
+    */
     function createAsset(
         string memory _name,
         uint256 _serialID,
@@ -90,13 +99,17 @@ contract AssetManagement {
         );
 
         if (!serialIDVerification[_serialID]) {
-            // a new article
+            
+            // a new article 
             articleCounter++;
 
+            //check if _serialID is not taken
             serialIDVerification[_serialID] = true;
 
+            // !ATENTION! Data for transaction history 
             setTimeAndOwner(_serialID);
 
+            //creation of new article with input paramenter, adding article to mapping (offMarket)
             ownArticles[articleCounter] = Article(
                 articleCounter,
                 msg.sender,
@@ -106,10 +119,10 @@ contract AssetManagement {
                 _price
             );
         }
-        // store this article
     }
 
-    // fetch and returns all article IDs available for sale
+
+    // fetch and returns all article IDs availablle (offMarket)
     function getOwnedAssets() public view returns (uint256[] memory) {
         // we check whether there is at least one article
         if (articleCounter == 0) {
@@ -136,7 +149,7 @@ contract AssetManagement {
         return ownedAssets;
     }
 
-    // sell an article
+    // sell an article, creates a new article which is directly for sale (onMarket)
     function sellArticle(
         string memory _name,
         uint256 _serialID,
@@ -165,46 +178,23 @@ contract AssetManagement {
         emit LogSellArticle(articleCounterSell, msg.sender, _name, _price);
     }
 
-    //wird aktuell nicht benutzt oder?
-    function sentToMarket(uint256 _id) public {
-        //we check wether there is at least one owned article
-        require(
-            articleCounter > 0,
-            "There should be at least one owned article"
-        );
-
-        //we check whether the article exists
-        require(
-            _id > 0 && _id <= articleCounter,
-            "Article with this id does not exits"
-        );
-        // we retrieve the article
-        Article storage ownArticle = ownArticles[_id];
-
-        //emit event for Market ticker
-        emit LogSellArticle(
-            articleCounterSell,
-            msg.sender,
-            ownArticle.name,
-            ownArticle.price
-        );
-
-        //check if articel is allready deleted
-        require(ownArticle.id != 0);
-
-        articleCounterSell++;
-        ownArticle.id = articleCounter;
-        articles[articleCounterSell] = ownArticle;
-
-        delete (ownArticles[_id]);
-    }
-
+    /**
+    * Sell owned asset, which was already created
+    * param  {uint256}  _articleId [articleID from asset]
+    * param  {uint256} _sellPrice  [price from asset]
+    */
     function sellOwnArticle(uint256 _articleId, uint256 _sellPrice) public {
+
+        //retrieve article from mapping and store it
         Article storage articleForSell = ownArticles[_articleId];
+
+        //checking if seller is locked in account
         if (msg.sender == articleForSell.seller) {
+
             // a new article
             articleCounterSell++;
-            // store this article
+
+            //Create new article & store this article
             articles[articleCounterSell] = Article(
                 articleCounterSell,
                 articleForSell.seller,
@@ -213,24 +203,33 @@ contract AssetManagement {
                 articleForSell.serialID,
                 _sellPrice
             );
+
+            //emit Event for market event ticker 
             emit LogSellArticle(
                 articleCounterSell,
                 msg.sender,
                 articleForSell.name,
                 articleForSell.price
             );
+
+            //delete old article
             delete (ownArticles[_articleId].seller);
             delete (ownArticles[_articleId]);
         }
     }
 
-    //remove from market
+    /**
+    * Remove asset from market back to owned Assets
+    * param  {uint256}  _articleId [articleID from asset]
+    */
     function removeFromMarket(uint256 _id) public {
+        //retrieve article from mapping and store it
         Article storage article = articles[_id];
+
         // a new article
         articleCounter++;
-        // store this article
 
+        //create & store this article
         ownArticles[articleCounter] = Article(
             articleCounter,
             article.seller,
@@ -239,6 +238,8 @@ contract AssetManagement {
             article.serialID,
             article.price
         );
+
+        //emit Event for market ticker  
         emit LogOffMarket(
             article.id,
             article.seller,
@@ -247,11 +248,16 @@ contract AssetManagement {
             article.price
         );
 
+        //delete old article
         delete (articles[_id]);
     }
 
-    // buy an article
+    /**
+    * Buy Asset from market
+    * param  {uint256}  _articleId [articleID from asset]
+    */
     function buyArticle(uint256 _id) public payable {
+
         // we check whether there is at least one article
         require(articleCounterSell > 0, "There should be at least one article");
 
@@ -269,6 +275,7 @@ contract AssetManagement {
 
         //deleted Objects cant be bought
         require(article.id != 0);
+
         // we don't allow the seller to buy his/her own article
         require(
             article.seller != msg.sender,
@@ -280,10 +287,6 @@ contract AssetManagement {
             article.price == msg.value,
             "Value provided does not match price of article"
         );
-
-        //add to hisory
-        //importatnt to have right article id form the spot where its located
-        articleCounter++;
 
         //add Article to all the article owned by some one and not for sale
         ownArticles[articleCounter] = article;
@@ -299,9 +302,8 @@ contract AssetManagement {
 
         //selller is new owner
         article.seller = msg.sender;
-        // articleCounter++;            !Problem why do we have 3 times increase in articleCounter ?
 
-        // trigger the event
+        // trigger the event for market ticker
         emit LogBuyArticle(
             _id,
             article.seller,
@@ -309,7 +311,9 @@ contract AssetManagement {
             article.name,
             article.price
         );
-        //articleCounter++;
+
+        //create new article
+        articleCounter++;
         ownArticles[articleCounter] = Article(
             articleCounter,
             article.seller,
@@ -323,20 +327,9 @@ contract AssetManagement {
         delete (articles[_id]);
     }
 
-    //Problem! number is wrong   -Articles can change owner
-    // fetch the number of articles in the contract
-    function getNumberOfArticles() public view returns (uint256) {
-        return articleCounter;
-    }
-
-    //Probelm! number is wrong -Articles can change owner and number jumps up
-    // fetch the number of articles in the contract
-    function getNumberOfSellingArticles() public view returns (uint256) {
-        return articleCounterSell;
-    }
-
     // fetch and returns all article IDs available for sale
     function getArticlesForSale() public view returns (uint256[] memory) {
+
         // we check whether there is at least one article
         if (articleCounterSell == 0) {
             return new uint256[](0);
@@ -345,7 +338,9 @@ contract AssetManagement {
         // prepare output arrays
         uint256[] memory articleIds = new uint256[](articleCounterSell);
 
+        //initialize var
         uint256 numberOfArticlesForSale = 0;
+
         // iterate over articles
         for (uint256 i = 1; i <= articleCounterSell; i++) {
             // keep only the ID for the article id is 0 when deleted so check it
