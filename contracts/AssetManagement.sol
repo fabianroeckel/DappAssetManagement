@@ -9,7 +9,6 @@ contract AssetManagement {
         string name;
         uint256 serialID;
         uint256 price;
-        //address[] history;
     }
 
     // State variables
@@ -24,7 +23,7 @@ contract AssetManagement {
 
     mapping(uint256 => bool) private serialIDVerification;
 
-    //-    -   -   -   -   -   -   -                                     -   -   -   History
+    //-    -   -   -   -   -   -   -                                     -   -   -   History !notNeeded
     mapping(uint256 => address[]) public ownerHistory;
     mapping(uint256 => uint256[]) public timeStamps;
 
@@ -82,17 +81,17 @@ contract AssetManagement {
     );
 
     /**
-    * Create new Asset, if serialID isn't taken
-    * param  {String}  _name [name of the asset]
-    * param  {uint256} _serialID [serial id of the asset]
-    * param  {uint256} _price [price of the asset]
+    * dev Create new Asset, if serialID isn't taken
+    *   String  _name name of the asset
+    *   uint256 _serialID serial id of the asset
+    *   uint256 _price price of the asset
     */
     function createAsset(
         string memory _name,
         uint256 _serialID,
         uint256 _price
     ) public {
-        //we only need one maybe require is the better Version //check for error while calling
+        //we only need one maybe require is the better Version //check for error while calling !notNeeded just one
         require(
             !serialIDVerification[_serialID],
             "serialId is allready taken and cant be claimed"
@@ -179,9 +178,9 @@ contract AssetManagement {
     }
 
     /**
-    * Sell owned asset, which was already created
-    * param  {uint256}  _articleId [articleID from asset]
-    * param  {uint256} _sellPrice  [price from asset]
+    * dev Sell owned asset, which was already created
+    * uint256  _articleId articleID from asset
+    * uint256 _sellPrice  price from asset
     */
     function sellOwnArticle(uint256 _articleId, uint256 _sellPrice) public {
 
@@ -219,8 +218,8 @@ contract AssetManagement {
     }
 
     /**
-    * Remove asset from market back to owned Assets
-    * param  {uint256}  _articleId [articleID from asset]
+    * dev Remove asset from market back to owned Assets
+    *  uint256  _articleId articleID from asset
     */
     function removeFromMarket(uint256 _id) public {
         //retrieve article from mapping and store it
@@ -253,8 +252,8 @@ contract AssetManagement {
     }
 
     /**
-    * Buy Asset from market
-    * param  {uint256}  _articleId [articleID from asset]
+    * dev Buy Asset from market
+    *   uint256  _articleId articleID from asset
     */
     function buyArticle(uint256 _id) public payable {
 
