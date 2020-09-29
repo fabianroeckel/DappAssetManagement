@@ -8,6 +8,9 @@ App = {
     return App.initWeb3();
   },
 
+    /**
+   * @dev Allows initialize Web3.
+   */
   initWeb3: async () => {
     //We check if we have an etherum object (higher version MetaMask)
     if (window.ethereum) {
@@ -66,6 +69,9 @@ App = {
     );
   },
 
+    /**
+   * @dev Allows initialize the Contract.
+   */
   initContract: async () => {
     $.getJSON("AssetManagement.json", (AssetmanagementArtifact) => {
       //initialize the truffle contract abstraction
@@ -78,7 +84,9 @@ App = {
     });
   },
 
-  // Listen to events raised from the contract
+    /**
+   * @dev Allows to listen to events.
+   */
   listenToEvents: async () => {
     //initialize instance of our contract
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
@@ -212,6 +220,9 @@ App = {
     $(".btn-transactionHistorySell").show();
   },
 
+      /**
+   * @dev Allows create new asset from form input.
+   */
   sellAsset: async () => {
     //retrieve asset price from dialog
     const assetPriceValue = parseFloat($("#asset_price_sell").val());
@@ -307,6 +318,9 @@ App = {
     }
   },
 
+      /**
+   * @dev Allows to buy an asset.
+   */
   buyAsset: async () => {
     event.preventDefault();
 
@@ -345,6 +359,9 @@ App = {
     }
   },
 
+    /**
+   * @dev Allows to sell a created and owned asset.
+   */
   sellOwnAsset: async (event) => {
     event.preventDefault();
 
@@ -388,6 +405,9 @@ App = {
     App.reloadAssets();
   },
 
+   /**
+   * @dev Allows to remove an asset from the market.
+   */
   removeAsset: async () => {
     event.preventDefault();
 
@@ -416,6 +436,10 @@ App = {
     App.reloadAssets();
   },
 
+
+   /**
+   * @dev Allows reload all asset display functions.
+   */
   reloadAssets: async () => {
     // avoid reentry
     if (App.loading) {
@@ -500,12 +524,12 @@ App = {
   },
 
   /**
-   * Display assetsForSale on the market
-   * param  {uint256}  id [asset id]
-   * param  {address}  seller [asset seller/owner]
-   * param  {string}   name [asset name]
-   * param  {uint256}  serialID [asset serialIdentifier]
-   * param  {uint256}  price [asset price]
+   * @dev Display an asset for sale on the market
+   * @param  {uint256}  id [asset id]
+   * @param  {address}  seller [asset seller/owner]
+   * @param  {string}   name [asset name]
+   * @param  {uint256}  serialID [asset serialIdentifier]
+   * @param  {uint256}  price [asset price]
    */
   displayAsset: (id, seller, name, serialID, price) => {
     // Retrieve the asset placeholder
@@ -546,12 +570,12 @@ App = {
   },
 
   /**
-   * Display assetsForSale from the market
-   * param  {uint256}  id [asset id]
-   * param  {address}  seller [asset seller/owner]
-   * param  {string}   name [asset name]
-   * param  {uint256}  serialID [asset serialIdentifier]
-   * param  {uint256}  price [asset price]
+   * @dev display owned asset
+   * @param  {uint256}  id [asset id]
+   * @param  {address}  seller [asset seller/owner]
+   * @param  {string}   name [asset name]
+   * @param  {uint256}  serialID [asset serialIdentifier]
+   * @param  {uint256}  price [asset price]
    */
   displayOwnedAsset: (id, seller, name, serialID, price) => {
     // Retrieve the asset placeholder
