@@ -8,22 +8,17 @@ App = {
     return App.initWeb3();
   },
 
-  
-
   initWeb3: async () => {
-
-    //We check if we have an etherum object (modern version MetaMask)
+    //We check if we have an etherum object (higher version MetaMask)
     if (window.ethereum) {
-
-      //initialize new web3 object 
+      //initialize new web3 object
       window.web3 = new Web3(window.ethereum);
       try {
-         
         //display dialog, to allow access
         await window.ethereum.enable();
 
-         //Checking for changed account event emitted by Meta Mask
-         //reload Account information and assetsForSale
+        //Checking for changed account event emitted by Meta Mask
+        //reload Account information and assetsForSale
         ethereum.on("accountsChanged", function (accounts) {
           App.displayAccountInfo();
           App.reloadAssets();
@@ -31,7 +26,6 @@ App = {
 
         App.displayAccountInfo();
         return App.initContract();
-
       } catch (error) {
         //user denied access
         console.error(
@@ -45,24 +39,19 @@ App = {
       App.displayAccountInfo();
       return App.initContract();
     } else {
-
       //no dapp browser
-      console.log(
-        "Non-ethereum browser detected."
-      );
+      console.log("Non-ethereum browser detected.");
     }
   },
-
 
   /**
    * @dev Allows the display account balance and address.
    */
   displayAccountInfo: async () => {
-
-    //return list of accounts we have access to 
+    //return list of accounts we have access to
     const accounts = await window.web3.eth.getAccounts();
 
-    //retrieve account 
+    //retrieve account
     App.account = accounts[0];
 
     //jquery to display account address
@@ -77,10 +66,8 @@ App = {
     );
   },
 
-
   initContract: async () => {
     $.getJSON("AssetManagement.json", (AssetmanagementArtifact) => {
-      
       //initialize the truffle contract abstraction
       App.contracts.AssetManagement = TruffleContract(AssetmanagementArtifact);
 
@@ -93,13 +80,11 @@ App = {
 
   // Listen to events raised from the contract
   listenToEvents: async () => {
-
     //initialize instance of our contract
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-    
+
     //check if we already started to listen to events
     if (App.logsellAssetEventListener == null) {
-      
       //initialize asset event listener from block 0 (range)
       //to listen to data events
       App.logsellAssetEventListener = assetManagementInstance
@@ -121,7 +106,6 @@ App = {
     }
     //check if we already started to listen to events
     if (App.logbuyAssetEventListener == null) {
-
       //initialize asset event listener from block 0 (range)
       //to listen to data events
       App.logbuyAssetEventListener = assetManagementInstance
@@ -145,7 +129,6 @@ App = {
     }
     //check if we already started to listen to events
     if (App.logOffMarketEventListener == null) {
-
       //initialize asset event listener from block 0 (range)
       //to listen to data events
       App.logOffMarketEventListener = assetManagementInstance
@@ -170,16 +153,13 @@ App = {
 
   //!NotNeeded
   getTransactionHistory: async (event) => {
-
     //retrieve asset id from button
     var _assetID = $(event.target).data("id");
     console.log(_assetID); //!NotNeeded
 
     //initialize instance of contract
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-    const arraylength = await assetManagementInstance.getArrayLength(
-      _assetID
-    );
+    const arraylength = await assetManagementInstance.getArrayLength(_assetID);
     console.log(arraylength.length);
     $("#transactionHistory").empty();
     for (let i = 0; i < arraylength.length; i++) {
@@ -203,15 +183,12 @@ App = {
     $(".btn-transactionHistory").show();
   },
 
-
   //!Not Needed
   getTransactionHistorySell: async (event) => {
     var _assetID = $(event.target).data("id");
     console.log(_assetID);
     const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-    const arraylength = await assetManagementInstance.getArrayLength(
-      _assetID
-    );
+    const arraylength = await assetManagementInstance.getArrayLength(_assetID);
     console.log(arraylength.length);
     $("#transactionHistorySell").empty();
     for (let i = 0; i < arraylength.length; i++) {
@@ -235,13 +212,10 @@ App = {
     $(".btn-transactionHistorySell").show();
   },
 
-
-
   sellAsset: async () => {
-
     //retrieve asset price from dialog
     const assetPriceValue = parseFloat($("#asset_price_sell").val());
-   
+
     //check if Number and convert it to string
     const assetPrice = isNaN(assetPriceValue)
       ? "0"
@@ -285,14 +259,11 @@ App = {
     App.reloadAssets();
   },
 
-
   createAsset: async () => {
     console.log("creating"); //!Not Neded
 
     //retrieve asset price from dialog
-    const assetPriceValueCreate = parseFloat(
-      $("#asset_price_create").val()
-    );
+    const assetPriceValueCreate = parseFloat($("#asset_price_create").val());
 
     //check if Number and convert it to string
     const assetPriceCreate = isNaN(assetPriceValueCreate)
@@ -315,8 +286,8 @@ App = {
     try {
       //initialize instance of our contract
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-      
-         /**@dev allows to create new asset
+
+      /**@dev allows to create new asset
        * @param string  _name asset name
        * @param uint256 _serialID unique serial identifier
        * @param uint256 _price asset price
@@ -336,14 +307,13 @@ App = {
     }
   },
 
-
   buyAsset: async () => {
     event.preventDefault();
 
     // retrieve the asset id, price from button
     var _assetID = $(event.target).data("id");
 
-     // retrieve the asset price, price from button
+    // retrieve the asset price, price from button
     const assetPriceValue = parseFloat($(event.target).data("value"));
 
     //check if its a number and convert it into a String
@@ -351,16 +321,15 @@ App = {
       ? "0"
       : assetPriceValue.toString();
 
-    //Converts wei value into a ether value 
+    //Converts wei value into a ether value
     const _price = window.web3.utils.toWei(assetPrice, "ether");
-    
+
     try {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-     
-     
+
       /**@dev allows to buy asset
        * @param uint256 _assetID asset itentifier
-       * */ 
+       * */
       const transactionReceipt = await assetManagementInstance
         .buyAsset(_assetID, {
           from: App.account,
@@ -402,8 +371,8 @@ App = {
 
       /**@dev allows to sell asset (available for sale)
        * @param uint256 _assetID asset itentifier
-       * @param uint _price asset price 
-       * */ 
+       * @param uint _price asset price
+       * */
       const transactionReceipt = await assetManagementInstance
         .sellOwnAsset(_assetID, _price, {
           from: App.account,
@@ -412,14 +381,13 @@ App = {
         .on("transactionHash", (hash) => {
           console.log("transaction hash", hash);
         });
-        console.log("transaction receipt", transactionReceipt);
+      console.log("transaction receipt", transactionReceipt);
     } catch (error) {
       console.error(error);
     }
     App.reloadAssets();
   },
 
-  
   removeAsset: async () => {
     event.preventDefault();
 
@@ -431,8 +399,8 @@ App = {
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
 
       /**@dev allows to remove asset from market (not available for sale anymore)
-       * @param uint256 _assetID asset itentifier 
-       * */ 
+       * @param uint256 _assetID asset itentifier
+       * */
       const transactionReceipt = await assetManagementInstance
         .removeFromMarket(_assetID, {
           from: App.account,
@@ -441,13 +409,12 @@ App = {
         .on("transactionHash", (hash) => {
           console.log("transaction hash", hash);
         });
-        console.log("transaction receipt", transactionReceipt);
+      console.log("transaction receipt", transactionReceipt);
     } catch (error) {
       console.error(error);
     }
     App.reloadAssets();
   },
-
 
   reloadAssets: async () => {
     // avoid reentry
@@ -460,10 +427,9 @@ App = {
     App.displayAccountInfo();
 
     try {
-
       //initialize contract instance
       const assetManagementInstance = await App.contracts.AssetManagement.deployed();
-      
+
       //get assetIDs for assetsForSale for sale
       const assetID = await assetManagementInstance.getAssetsForSale();
       console.log("IDs in ForSale Row Array: " + assetID);
@@ -476,7 +442,6 @@ App = {
         "Länge Aarry of Articles for Sale in reloadArticels(): " +
           assetID.length
       );
-      
 
       for (let i = 0; i < assetID.length; i++) {
         //console.log("Thats the Asset i= " + i + " and aticleID "); !Not Needed
@@ -514,7 +479,6 @@ App = {
       //clear the assetsRow list
       $("#assetsRow2").empty();
       for (let i = 0; i < assetIDs2.length; i++) {
-
         //retrieve asset from mapping
         const asset = await assetManagementInstance.assetsNotForSale(
           assetIDs2[i]
@@ -535,20 +499,18 @@ App = {
     }
   },
 
-
   /**
-    * Display assetsForSale on the market
-    * param  {uint256}  id [asset id]
-    * param  {address}  seller [asset seller/owner]
-    * param  {string}   name [asset name]
-    * param  {uint256}  serialID [asset serialIdentifier]
-    * param  {uint256}  price [asset price]
-    */
+   * Display assetsForSale on the market
+   * param  {uint256}  id [asset id]
+   * param  {address}  seller [asset seller/owner]
+   * param  {string}   name [asset name]
+   * param  {uint256}  serialID [asset serialIdentifier]
+   * param  {uint256}  price [asset price]
+   */
   displayAsset: (id, seller, name, serialID, price) => {
-    
     // Retrieve the asset placeholder
     const assetsRow = $("#assetsRow");
-    
+
     //Converts wei value into a ether value
     const etherPrice = web3.utils.fromWei(price, "ether");
 
@@ -583,18 +545,15 @@ App = {
     assetsRow.append(assetTemplateSell.html());
   },
 
-
-
   /**
-    * Display assetsForSale from the market
-    * param  {uint256}  id [asset id]
-    * param  {address}  seller [asset seller/owner]
-    * param  {string}   name [asset name]
-    * param  {uint256}  serialID [asset serialIdentifier]
-    * param  {uint256}  price [asset price]
-    */
+   * Display assetsForSale from the market
+   * param  {uint256}  id [asset id]
+   * param  {address}  seller [asset seller/owner]
+   * param  {string}   name [asset name]
+   * param  {uint256}  serialID [asset serialIdentifier]
+   * param  {uint256}  price [asset price]
+   */
   displayOwnedAsset: (id, seller, name, serialID, price) => {
-
     // Retrieve the asset placeholder
     const assetsRow2 = $("#assetsRow2");
 
@@ -605,9 +564,7 @@ App = {
     var assetTemplateCreate = $("#assetTemplateCreate");
     assetTemplateCreate.find(".asset-name-create").text(name);
     assetTemplateCreate.find(".asset-serialID-create").text(serialID);
-    assetTemplateCreate
-      .find(".asset-price-create")
-      .text(etherPrice + " ETH");
+    assetTemplateCreate.find(".asset-price-create").text(etherPrice + " ETH");
     assetTemplateCreate.find(".btn-buy").attr("data-id", id);
     assetTemplateCreate.find(".btn-buy").attr("data-value", etherPrice);
     assetTemplateCreate.find(".btn-transactionHistory");
