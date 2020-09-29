@@ -242,7 +242,7 @@ App = {
     const _price = window.web3.utils.toWei(assetPrice, "ether");
 
     //we check if the name is empty or there isnt a price in form
-    if (_name.trim() == "" || _price === "0") {
+    if (_name.trim() == "" || _price === "0"||_serialID.trim() === "") {
       return false;
     }
 
@@ -291,7 +291,7 @@ App = {
     const _priceCreate = window.web3.utils.toWei(assetPriceCreate, "ether");
 
     //we check if the name is empty or there isnt a price in form
-    if (_nameCreate.trim() == "" || _priceCreate === "0") {
+    if (_nameCreate.trim() == "" || _priceCreate === "0" || _serialIDCreate.trim() === "") {
       return false;
     }
     try {
