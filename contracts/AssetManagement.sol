@@ -137,8 +137,8 @@ contract AssetManagement {
         string memory _name,
         uint256 _serialID,
         uint256 _price
-    ) public {
-        //verifySerialID(_serialID)                                         add it if trasnfer works
+    ) public verifySerialID(_serialID) {
+        //  add it if trasnfer works
         if (!serialIDVerification[_serialID]) {
             // a new asset
             assetCounter++;
@@ -193,7 +193,7 @@ contract AssetManagement {
         string memory _name,
         uint256 _serialID,
         uint256 _price
-    ) public {
+    ) public verifySerialID(_serialID) {
         if (!serialIDVerification[_serialID]) {
             setTimeAndOwner(_serialID);
             serialIDVerification[_serialID] = true;
