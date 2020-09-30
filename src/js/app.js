@@ -8,7 +8,7 @@ App = {
     return App.initWeb3();
   },
 
-    /**
+  /**
    * @dev Allows initialize Web3.
    */
   initWeb3: async () => {
@@ -69,7 +69,7 @@ App = {
     );
   },
 
-    /**
+  /**
    * @dev Allows initialize the Contract.
    */
   initContract: async () => {
@@ -84,7 +84,7 @@ App = {
     });
   },
 
-    /**
+  /**
    * @dev Allows to listen to events.
    */
   listenToEvents: async () => {
@@ -220,7 +220,7 @@ App = {
     $(".btn-transactionHistorySell").show();
   },
 
-      /**
+  /**
    * @dev Allows create new asset from form input.
    */
   sellAsset: async () => {
@@ -242,7 +242,7 @@ App = {
     const _price = window.web3.utils.toWei(assetPrice, "ether");
 
     //we check if the name is empty or there isnt a price in form
-    if (_name.trim() == "" || _price === "0"||_serialID.trim() === "") {
+    if (_name.trim() == "" || _price === "0" || _serialID.trim() === "") {
       return false;
     }
 
@@ -291,7 +291,11 @@ App = {
     const _priceCreate = window.web3.utils.toWei(assetPriceCreate, "ether");
 
     //we check if the name is empty or there isnt a price in form
-    if (_nameCreate.trim() == "" || _priceCreate === "0" || _serialIDCreate.trim() === "") {
+    if (
+      _nameCreate.trim() == "" ||
+      _priceCreate === "0" ||
+      _serialIDCreate.trim() === ""
+    ) {
       return false;
     }
     try {
@@ -318,7 +322,7 @@ App = {
     }
   },
 
-      /**
+  /**
    * @dev Allows to buy an asset.
    */
   buyAsset: async () => {
@@ -359,7 +363,7 @@ App = {
     }
   },
 
-    /**
+  /**
    * @dev Allows to sell a created and owned asset.
    */
   sellOwnAsset: async (event) => {
@@ -405,7 +409,7 @@ App = {
     App.reloadAssets();
   },
 
-   /**
+  /**
    * @dev Allows to remove an asset from the market.
    */
   removeAsset: async () => {
@@ -436,8 +440,7 @@ App = {
     App.reloadAssets();
   },
 
-
-   /**
+  /**
    * @dev Allows reload all asset display functions.
    */
   reloadAssets: async () => {
@@ -471,7 +474,9 @@ App = {
         //console.log("Thats the Asset i= " + i + " and aticleID "); !Not Needed
 
         //retrieve asset from mapping
-        const asset = await assetManagementInstance.assetsForSale(assetID[i]);
+        const asset = await assetManagementInstance.getAssetForSaleByID(
+          assetID[i]
+        );
 
         // Problem! if added   -only if artikel is not deleted at that spot !NotNeeded
         App.displayAsset(
@@ -504,8 +509,13 @@ App = {
       $("#assetsRow2").empty();
       for (let i = 0; i < assetIDs2.length; i++) {
         //retrieve asset from mapping
-        const asset = await assetManagementInstance.assetsNotForSale(
+        const asset = await assetManagementInstance.getAssetNotForSale(
           assetIDs2[i]
+        );
+        console.log(
+          "own Assets for Display Array : " +
+            JSON.stringify(asset, null, 4) +
+            "<-"
         );
         App.displayOwnedAsset(
           asset[0],
@@ -525,10 +535,10 @@ App = {
 
   /**
    * @dev Display an asset for sale on the market
-   * @param  {uint256}  id [asset id]
+   * @param  {uint256}  id [asset id] -id for the location
    * @param  {address}  seller [asset seller/owner]
    * @param  {string}   name [asset name]
-   * @param  {uint256}  serialID [asset serialIdentifier]
+   * @param  {uint256}  serialID [asset serialIdentifier] -identifier
    * @param  {uint256}  price [asset price]
    */
   displayAsset: (id, seller, name, serialID, price) => {
@@ -612,6 +622,7 @@ App = {
       // add this new asset
       assetsRow2.append(assetTemplateCreate.html());
     }
+    cosole.log("");
   },
 };
 

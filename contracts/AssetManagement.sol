@@ -11,17 +11,63 @@ contract AssetManagement {
         uint256 price;
     }
 
-    // State variables
-    uint256 assetCounter;
-    uint256 assetCounterAssetsForSale;
+    //State variables for position -only used inside the contract
+    uint256 internal assetCounter;
+    uint256 internal assetCounterAssetsForSale;
 
     //All assetsForSale on the market (onMarket)
-    mapping(uint256 => Asset) public assetsForSale;
+    mapping(uint256 => Asset) private assetsForSale;
 
     //All assetsForSale !not! on the market (offMarket)
-    mapping(uint256 => Asset) public assetsNotForSale;
+    mapping(uint256 => Asset) private assetsNotForSale;
 
     mapping(uint256 => bool) private serialIDVerification;
+
+    //get data from own assets, importanten to prevent mailicious over writting
+    function getAssetNotForSale(uint256 id)
+        public
+        view
+        returns (
+            uint256,
+            address,
+            address,
+            string memory,
+            uint256,
+            uint256
+        )
+    {
+        return (
+            assetsNotForSale[id].id,
+            assetsNotForSale[id].seller,
+            assetsNotForSale[id].buyer,
+            assetsNotForSale[id].name,
+            assetsNotForSale[id].serialID,
+            assetsNotForSale[id].price
+        );
+    }
+
+    //get data from assets on the Market, important to prevent mailicious over writting
+    function getAssetForSaleByID(uint256 id)
+        public
+        view
+        returns (
+            uint256,
+            address,
+            address,
+            string memory,
+            uint256,
+            uint256
+        )
+    {
+        return (
+            assetsForSale[id].id,
+            assetsForSale[id].seller,
+            assetsForSale[id].buyer,
+            assetsForSale[id].name,
+            assetsForSale[id].serialID,
+            assetsForSale[id].price
+        );
+    }
 
     //-    -   -   -   -   -   -   -                                     -   -   -   History !notNeeded
     mapping(uint256 => address[]) public ownerHistory;
@@ -62,7 +108,7 @@ contract AssetManagement {
         uint256 _price
     );
 
-    // Event: asset was bought 
+    // Event: asset was bought
     event LogBuyAsset(
         uint256 indexed _id,
         address indexed _seller,
@@ -71,7 +117,7 @@ contract AssetManagement {
         uint256 _price
     );
 
-    // Event: asset was removed from market 
+    // Event: asset was removed from market
     event LogOffMarket(
         uint256 indexed _id,
         address indexed _seller,
@@ -81,11 +127,11 @@ contract AssetManagement {
     );
 
     /**
-    * dev Create new Asset, if serialID isn't taken
-    *   String  _name name of the asset
-    *   uint256 _serialID serial id of the asset
-    *   uint256 _price price of the asset
-    */
+     * dev Create new Asset, if serialID isn't taken
+     *   String  _name name of the asset
+     *   uint256 _serialID serial id of the asset
+     *   uint256 _price price of the asset
+     */
     function createAsset(
         string memory _name,
         uint256 _serialID,
@@ -98,14 +144,13 @@ contract AssetManagement {
         );
 
         if (!serialIDVerification[_serialID]) {
-            
-            // a new asset 
+            // a new asset
             assetCounter++;
 
             //check if _serialID is not taken
             serialIDVerification[_serialID] = true;
 
-            // !ATENTION! Data for transaction history 
+            // !ATENTION! Data for transaction history
             setTimeAndOwner(_serialID);
 
             //creation of new asset with input paramenter, adding asset to mapping (offMarket)
@@ -119,7 +164,6 @@ contract AssetManagement {
             );
         }
     }
-
 
     // fetch and returns all asset IDs availablle (offMarket)
     function getOwnedAssets() public view returns (uint256[] memory) {
@@ -178,18 +222,16 @@ contract AssetManagement {
     }
 
     /**
-    * dev Sell owned asset, which was already created
-    * uint256  _assetId assetId from asset
-    * uint256 _sellPrice  price from asset
-    */
+     * dev Sell owned asset, which was already created
+     * uint256  _assetId assetId from asset
+     * uint256 _sellPrice  price from asset
+     */
     function sellOwnAsset(uint256 _assetId, uint256 _sellPrice) public {
-
         //retrieve asset from mapping and store it
         Asset storage assetForSale = assetsNotForSale[_assetId];
 
         //checking if seller is locked in account
         if (msg.sender == assetForSale.seller) {
-
             // a new asset
             assetCounterAssetsForSale++;
 
@@ -203,7 +245,7 @@ contract AssetManagement {
                 _sellPrice
             );
 
-            //emit Event for market event ticker 
+            //emit Event for market event ticker
             emit LogSellAsset(
                 assetCounterAssetsForSale,
                 msg.sender,
@@ -218,9 +260,9 @@ contract AssetManagement {
     }
 
     /**
-    * dev Remove asset from market back to owned Assets
-    * uint256  _assetId assetID from asset
-    */
+     * dev Remove asset from market back to owned Assets
+     * uint256  _assetId assetID from asset
+     */
     function removeFromMarket(uint256 _id) public {
         //retrieve asset from mapping and store it
         Asset storage asset = assetsForSale[_id];
@@ -238,7 +280,7 @@ contract AssetManagement {
             asset.price
         );
 
-        //emit Event for market ticker  
+        //emit Event for market ticker
         emit LogOffMarket(
             asset.id,
             asset.seller,
@@ -252,13 +294,15 @@ contract AssetManagement {
     }
 
     /**
-    * dev Buy Asset from market
-    * param  uint256  _assetId assetID from asset
-    */
+     * dev Buy Asset from market
+     * param  uint256  _assetId assetID from asset
+     */
     function buyAsset(uint256 _id) public payable {
-
         // we check whether there is at least one asset
-        require(assetCounterAssetsForSale > 0, "There should be at least one asset");
+        require(
+            assetCounterAssetsForSale > 0,
+            "There should be at least one asset"
+        );
 
         // we check whether the asset exists
         require(
@@ -276,10 +320,7 @@ contract AssetManagement {
         require(asset.id != 0);
 
         // we don't allow the seller to buy his/her own asset
-        require(
-            asset.seller != msg.sender,
-            "Seller cannot buy his own asset"
-        );
+        require(asset.seller != msg.sender, "Seller cannot buy his own asset");
 
         // we check whether the value sent corresponds to the asset price
         require(
@@ -326,12 +367,10 @@ contract AssetManagement {
         delete (assetsForSale[_id]);
     }
 
-        
     // fetch the number of articles in the contract
     function getNumberOfAssets() public view returns (uint256) {
         return assetCounter;
     }
-
 
     // fetch the number of articles in the contract
     function getNumberOfSellingAssets() public view returns (uint256) {
@@ -340,7 +379,6 @@ contract AssetManagement {
 
     // fetch and returns all asset IDs available for sale
     function getAssetsForSale() public view returns (uint256[] memory) {
-
         // we check whether there is at least one asset
         if (assetCounterAssetsForSale == 0) {
             return new uint256[](0);

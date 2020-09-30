@@ -24,11 +24,7 @@ contract("AssetManagement", function (accounts) {
     const numberOfassets = await assetManagementInstance.getNumberOfSellingAssets();
     assert.equal(numberOfassets, 0, "number of assets must be zero");
     const assetsForSale = await assetManagementInstance.getAssetsForSale();
-    assert.equal(
-      assetsForSale.length,
-      0,
-      "assets for sale should be empty"
-    );
+    assert.equal(assetsForSale.length, 0, "assets for sale should be empty");
   });
 
   // Test case: sell a first asset
@@ -66,23 +62,15 @@ contract("AssetManagement", function (accounts) {
     );
 
     const assetsForSale = await assetManagementInstance.getAssetsForSale();
-    assert.equal(
-      assetsForSale.length,
-      1,
-      "there must now be 1 asset for sale"
-    );
+    assert.equal(assetsForSale.length, 1, "there must now be 1 asset for sale");
     const assetId = assetsForSale[0].toNumber();
     assert.equal(assetId, 1, "asset id must be 1");
 
-    const asset = await assetManagementInstance.assetsForSale(assetId);
+    const asset = await assetManagementInstance.getAssetForSaleByID(assetId);
     assert.equal(asset[0].toNumber(), 1, "asset id must be 1");
     assert.equal(asset[1], seller, "seller must be " + seller);
     assert.equal(asset[2], 0x0, "buyer must be empty");
-    assert.equal(
-      asset[3],
-      assetName1,
-      "asset name must be " + assetName1
-    );
+    assert.equal(asset[3], assetName1, "asset name must be " + assetName1);
     assert.equal(
       asset[4],
       assetSerialID1,
@@ -141,15 +129,11 @@ contract("AssetManagement", function (accounts) {
     const assetId = assetsForSale[1].toNumber();
     assert.equal(assetId, 2, "asset id must be 2");
 
-    const asset = await assetManagementInstance.assetsForSale(assetId);
+    const asset = await assetManagementInstance.getAssetForSaleByID(assetId);
     assert.equal(asset[0].toNumber(), 2, "asset id must be 2");
     assert.equal(asset[1], seller, "seller must be " + seller);
     assert.equal(asset[2], 0x0, "buyer must be empty");
-    assert.equal(
-      asset[3],
-      assetName2,
-      "asset name must be " + assetName2
-    );
+    assert.equal(asset[3], assetName2, "asset name must be " + assetName2);
     assert.equal(
       asset[4],
       assetSerialID2,
@@ -220,8 +204,7 @@ contract("AssetManagement", function (accounts) {
 
     //check the effect of buy on balances of buyer and seller, accounting for gas
     assert(
-      sellerBalanceAfterBuy ==
-        sellerBalanceBeforeBuy + assetPrice1.toNumber(),
+      sellerBalanceAfterBuy == sellerBalanceBeforeBuy + assetPrice1.toNumber(),
       "seller should have earned " + assetPrice1 + " ETH"
     );
     assert(

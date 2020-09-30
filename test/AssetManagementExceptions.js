@@ -30,11 +30,7 @@ contract("AssetManagement", function (accounts) {
     const numberOfAssets = await assetManagementinstance.getNumberOfAssets();
 
     //make sure sure the contract state was not altered
-    assert.equal(
-      numberOfAssets.toNumber(),
-      0,
-      "number of assets must be zero"
-    );
+    assert.equal(numberOfAssets.toNumber(), 0, "number of assets must be zero");
   });
 
   // Test case: buying an asset that does not exist
@@ -58,19 +54,11 @@ contract("AssetManagement", function (accounts) {
       assert.equal(error.reason, "Asset with this id does not exist");
     }
 
-    const asset = await assetManagementinstance.assetsForSale(assetId);
-    assert.equal(
-      asset[0].toNumber(),
-      assetId,
-      "asset id must be " + assetId
-    );
+    const asset = await assetManagementinstance.getAssetForSaleByID(assetId);
+    assert.equal(asset[0].toNumber(), assetId, "asset id must be " + assetId);
     assert.equal(asset[1], seller, "seller must be " + seller);
     assert.equal(asset[2], 0x0, "buyer must be empty");
-    assert.equal(
-      asset[3],
-      assetName,
-      "asset name must be " + assetName
-    );
+    assert.equal(asset[3], assetName, "asset name must be " + assetName);
     assert.equal(
       asset[4],
       assetSerialID,
@@ -95,20 +83,12 @@ contract("AssetManagement", function (accounts) {
       assert.equal(error.reason, "Seller cannot buy his own asset");
     }
 
-    const asset = await assetManagementinstance.assetsForSale(assetId);
+    const asset = await assetManagementinstance.getAssetForSaleByID(assetId);
     //make sure sure the contract state was not altered
-    assert.equal(
-      asset[0].toNumber(),
-      assetId,
-      "asset id must be " + assetId
-    );
+    assert.equal(asset[0].toNumber(), assetId, "asset id must be " + assetId);
     assert.equal(asset[1], seller, "seller must be " + seller);
     assert.equal(asset[2], 0x0, "buyer must be empty");
-    assert.equal(
-      asset[3],
-      assetName,
-      "asset name must be " + assetName
-    );
+    assert.equal(asset[3], assetName, "asset name must be " + assetName);
     assert.equal(
       asset[4],
       assetSerialID,
@@ -135,20 +115,12 @@ contract("AssetManagement", function (accounts) {
       );
     }
 
-    const asset = await assetManagementinstance.assetsForSale(assetId);
+    const asset = await assetManagementinstance.getAssetForSaleByID(assetId);
     //make sure sure the contract state was not altered
-    assert.equal(
-      asset[0].toNumber(),
-      assetId,
-      "asset id must be " + assetId
-    );
+    assert.equal(asset[0].toNumber(), assetId, "asset id must be " + assetId);
     assert.equal(asset[1], seller, "seller must be " + seller);
     assert.equal(asset[2], 0x0, "buyer must be empty");
-    assert.equal(
-      asset[3],
-      assetName,
-      "asset name must be " + assetName
-    );
+    assert.equal(asset[3], assetName, "asset name must be " + assetName);
     assert.equal(
       asset[4],
       assetSerialID,
