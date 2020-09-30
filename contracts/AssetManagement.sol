@@ -21,6 +21,7 @@ contract AssetManagement {
     //All assetsForSale !not! on the market (offMarket)
     mapping(uint256 => Asset) private assetsNotForSale;
 
+    //checking for allready existing serial nummbers
     mapping(uint256 => bool) private serialIDVerification;
 
     //get data from own assets, importanten to prevent mailicious over writting
@@ -328,9 +329,6 @@ contract AssetManagement {
             "Value provided does not match price of asset"
         );
 
-        //add Asset to all the asset owned by some one and not for sale
-        assetsNotForSale[assetCounter] = asset;
-
         // the buyer can buy the asset
         asset.seller.transfer(msg.value);
 
@@ -352,8 +350,8 @@ contract AssetManagement {
             asset.price
         );
 
-        //create new asset
-        //assetCounter++; !Not Needed
+        //create new asset new asset inside the ownAsset mapping
+        assetCounter++;
         assetsNotForSale[assetCounter] = Asset(
             assetCounter,
             asset.seller,
@@ -392,9 +390,8 @@ contract AssetManagement {
 
         // iterate over assetsForSale
         for (uint256 i = 1; i <= assetCounterAssetsForSale; i++) {
-            // keep only the ID for the asset id is 0 when deleted so check it
+            //keep only the ID for the asset id is 0 when deleted- so check it
             //assets only exist if not deleted while swapping
-            //Attention! deleted assetsForSale[i].buyer == address(0) &&
             if (assetsForSale[i].id != 0) {
                 assetIDs[numberOfAssetsForSale] = assetsForSale[i].id;
                 numberOfAssetsForSale++;
