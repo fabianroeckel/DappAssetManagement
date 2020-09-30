@@ -12,8 +12,9 @@ contract AssetManagement {
     }
 
     //State variables for position -only used inside the contract
-    uint256 internal assetCounter;
-    uint256 internal assetCounterAssetsForSale;
+    //internal is not secure
+    uint256 private assetCounter;
+    uint256 private assetCounterAssetsForSale;
 
     //All assetsForSale on the market (onMarket)
     mapping(uint256 => Asset) private assetsForSale;
