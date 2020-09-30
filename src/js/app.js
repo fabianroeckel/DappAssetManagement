@@ -159,7 +159,17 @@ App = {
     $(".btn-show-events").show();
   },
 
-  //!NotNeeded
+  /**
+   * Exclaimer:
+   * The Owner of an Asset can still be queried by entering in to the Consle of the Browser:
+
+   *  const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+      const numberOfOwners = await assetManagementInstance.length ;
+      const ownerAndTime = assetManagementInstance.getTimeAndOwner("serialID of the Asset", "the owner you are looking for")
+      const ownerAddress =  owner[0]
+
+ * @dev This function is not used, but can be used to display the owner history triggered by button
+ */
   getTransactionHistory: async (event) => {
     //retrieve asset id from button
     var _assetID = $(event.target).data("id");
@@ -191,7 +201,17 @@ App = {
     $(".btn-transactionHistory").show();
   },
 
-  //!Not Needed
+  /**
+   * Exclaimer:
+   * The Owner of an Asset can still be queried by entering in to the Consle of the Browser:
+
+   *  const assetManagementInstance = await App.contracts.AssetManagement.deployed();
+      const numberOfOwners = await assetManagementInstance.length ;
+      const ownerAndTime = assetManagementInstance.getTimeAndOwner("serialID of the Asset", "the owner you are looking for")
+      const ownerAddress =  owner[0] 
+
+ * @dev This function is not used, but can be used to display the owner history triggerd by button
+ */
   getTransactionHistorySell: async (event) => {
     var _assetID = $(event.target).data("id");
     console.log(_assetID);
@@ -560,9 +580,7 @@ App = {
       assetTemplateSell.find(".btn-buy").hide();
       assetTemplateSell.find(".btn-remove").show();
     } else {
-      assetTemplateSell
-        .find(".asset-seller-sell")
-        .text(seller);
+      assetTemplateSell.find(".asset-seller-sell").text(seller);
       assetTemplateSell.find(".btn-buy").show();
       assetTemplateSell.find(".btn-remove").hide();
       //assetTemplateSell.find("remove-asset-market").hide(); !NotNeeded
