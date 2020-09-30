@@ -562,7 +562,7 @@ App = {
     } else {
       assetTemplateSell
         .find(".asset-seller-sell")
-        .text(seller.substring(0, 15) + "...");
+        .text(seller);
       assetTemplateSell.find(".btn-buy").show();
       assetTemplateSell.find(".btn-remove").hide();
       //assetTemplateSell.find("remove-asset-market").hide(); !NotNeeded
