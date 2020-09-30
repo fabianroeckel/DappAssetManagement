@@ -480,12 +480,11 @@ App = {
 
         // Problem! if added   -only if artikel is not deleted at that spot !NotNeeded
         App.displayAsset(
-          asset[0],
-          asset[1],
-          asset[3],
-          asset[4],
-          asset[5],
-          asset[6]
+          asset[0], //id
+          asset[1], //seller
+          asset[3], //name
+          asset[4], //serial id
+          asset[5] //price
         );
       }
 
@@ -503,7 +502,7 @@ App = {
       const assetIDs2 = await assetManagementInstance.getOwnedAssets();
 
       //!Not Needed
-      console.log("IDs in Owned Row Array: " + assetIDs2);
+      console.log("IDs in Own Array length ->: " + assetIDs2.length);
 
       //clear the assetsRow list
       $("#assetsRow2").empty();
@@ -512,18 +511,12 @@ App = {
         const asset = await assetManagementInstance.getAssetNotForSale(
           assetIDs2[i]
         );
-        console.log(
-          "own Assets for Display Array : " +
-            JSON.stringify(asset, null, 4) +
-            "<-"
-        );
         App.displayOwnedAsset(
-          asset[0],
-          asset[1],
-          asset[3],
-          asset[4],
-          asset[5],
-          asset[6]
+          asset[0], //id
+          asset[1], //seller  //jump we dont want the buyer at [2]
+          asset[3], //name
+          asset[4], //serial id
+          asset[5] //price
         );
       }
       App.loading = false;
@@ -622,7 +615,6 @@ App = {
       // add this new asset
       assetsRow2.append(assetTemplateCreate.html());
     }
-    cosole.log("");
   },
 };
 

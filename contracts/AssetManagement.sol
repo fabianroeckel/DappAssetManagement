@@ -138,12 +138,7 @@ contract AssetManagement {
         uint256 _serialID,
         uint256 _price
     ) public {
-        //we only need one maybe require is the better Version //check for error while calling !notNeeded just one
-        require(
-            !serialIDVerification[_serialID],
-            "serialId is allready taken and cant be claimed"
-        );
-
+        //verifySerialID(_serialID)                                         add it if trasnfer works
         if (!serialIDVerification[_serialID]) {
             // a new asset
             assetCounter++;
@@ -199,10 +194,6 @@ contract AssetManagement {
         uint256 _serialID,
         uint256 _price
     ) public {
-        require(
-            !serialIDVerification[_serialID],
-            "serialId is allready taken and cant be claimed"
-        );
         if (!serialIDVerification[_serialID]) {
             setTimeAndOwner(_serialID);
             serialIDVerification[_serialID] = true;
@@ -405,5 +396,16 @@ contract AssetManagement {
         }
         //Attention! changeed the return because not needed ?
         return forSale;
+    }
+
+    /**
+     *  Throws exeption if the serial id number is allready taken
+     */
+    modifier verifySerialID(uint256 _serialID) {
+        require(
+            !serialIDVerification[_serialID],
+            "serialId is allready taken and cant be claimed"
+        );
+        _;
     }
 }
